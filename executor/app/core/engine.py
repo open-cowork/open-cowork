@@ -1,5 +1,3 @@
-import os
-
 from claude_agent_sdk import ClaudeAgentOptions
 from claude_agent_sdk.client import ClaudeSDKClient
 
@@ -7,9 +5,6 @@ from app.core.workspace import WorkspaceManager
 from app.hooks.base import ExecutionContext
 from app.hooks.manager import HookManager
 from app.schemas.request import TaskConfig
-
-os.environ["ANTHROPIC_API_KEY"] = "sk-6c393d717285456eb55a0e0d673ba2de"
-os.environ["ANTHROPIC_BASE_URL"] = "https://dashscope.aliyuncs.com/apps/anthropic"
 
 
 class AgentExecutor:
@@ -32,7 +27,6 @@ class AgentExecutor:
                 setting_sources=["project"],
                 mcp_servers=config.mcp_config,
                 permission_mode="bypassPermissions",
-                model="qwen-plus",
             )
 
             async with ClaudeSDKClient(options=options) as client:
