@@ -13,29 +13,58 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
-  Search,
-  Library,
-  FolderPlus,
-  Plus,
   FileText,
+  FolderPlus,
   Grid3X3,
-  Smartphone,
+  Library,
+  Plus,
+  Search,
   Settings2,
+  Smartphone,
 } from "lucide-react";
+import Image from "next/image";
+
+function SidebarLogo() {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  if (isCollapsed) {
+    // 折叠状态：显示小 logo 居中，悬停时显示折叠按钮
+    return (
+      <div className="relative group/logo flex items-center justify-center w-full">
+        <Image
+          src="/logo.png"
+          alt="Logo"
+          width={40}
+          height={40}
+          className="group-hover/logo:opacity-0 transition-opacity"
+        />
+        <SidebarTrigger className="h-10 w-10 absolute opacity-0 group-hover/logo:opacity-100 transition-opacity" />
+      </div>
+    );
+  }
+
+  // 展开状态：显示 logo + 文字 + 折叠按钮
+  return (
+    <div className="flex items-center justify-between w-full">
+      <div className="flex items-center gap-3">
+        <Image src="/logo.png" alt="Logo" width={40} height={40} />
+        <span className="text-xl font-semibold text-foreground">toto</span>
+      </div>
+      <SidebarTrigger className="h-10 w-10" />
+    </div>
+  );
+}
 
 export function AppSidebar() {
   return (
-    <Sidebar className="border-r-0" collapsible="icon">
-      <SidebarHeader className="p-6">
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold text-foreground group-data-[collapsible=icon]:hidden">
-            toto
-          </span>
-          <SidebarTrigger className="h-10 w-10" />
-        </div>
+    <Sidebar className="border-r-0 overflow-hidden" collapsible="icon">
+      <SidebarHeader className="p-4 group-data-[collapsible=icon]:p-2">
+        <SidebarLogo />
       </SidebarHeader>
 
       <SidebarContent>
@@ -106,7 +135,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-6">
+      <SidebarFooter className="p-4">
         <div className="flex group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[state=expanded]:flex-row group-data-[state=expanded]:justify-between">
           <div className="flex gap-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[state=expanded]:flex-row">
             <Button
