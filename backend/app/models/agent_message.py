@@ -1,12 +1,14 @@
 import uuid
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import JSON, BigInteger, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base, TimestampMixin
-from app.models.agent_session import AgentSession
-from app.models.tool_execution import ToolExecution
+
+if TYPE_CHECKING:
+    from app.models.agent_session import AgentSession
+    from app.models.tool_execution import ToolExecution
 
 
 class AgentMessage(Base, TimestampMixin):

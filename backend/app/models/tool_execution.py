@@ -1,7 +1,7 @@
 import uuid
 from typing import Any
 
-from sqlalchemy import Boolean, ForeignKey, Integer, JSON, String
+from sqlalchemy import JSON, Boolean, ForeignKey, Integer, String, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base, TimestampMixin
@@ -13,7 +13,7 @@ class ToolExecution(Base, TimestampMixin):
     __tablename__ = "tool_executions"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        primary_key=True, server_default="gen_random_uuid()"
+        primary_key=True, server_default=text("gen_random_uuid()")
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("agent_sessions.id", ondelete="CASCADE"), nullable=False

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Integer, Numeric
+from sqlalchemy import ForeignKey, Integer, Numeric, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base, TimestampMixin
@@ -11,7 +11,7 @@ class UsageLog(Base, TimestampMixin):
     __tablename__ = "usage_logs"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        primary_key=True, server_default="gen_random_uuid()"
+        primary_key=True, server_default=text("gen_random_uuid()")
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("agent_sessions.id", ondelete="CASCADE"), nullable=False

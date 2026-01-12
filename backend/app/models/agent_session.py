@@ -1,13 +1,15 @@
 import uuid
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import JSON, String, Text
+from sqlalchemy import JSON, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base, TimestampMixin
-from app.models.agent_message import AgentMessage
-from app.models.tool_execution import ToolExecution
-from app.models.usage_log import UsageLog
+
+if TYPE_CHECKING:
+    from app.models.agent_message import AgentMessage
+    from app.models.tool_execution import ToolExecution
+    from app.models.usage_log import UsageLog
 
 
 class AgentSession(Base, TimestampMixin):
@@ -15,7 +17,7 @@ class AgentSession(Base, TimestampMixin):
 
     id: Mapped[uuid.UUID] = mapped_column(
         primary_key=True,
-        server_default="gen_random_uuid()",
+        server_default=text("gen_random_uuid()"),
     )
     user_id: Mapped[str] = mapped_column(String(255), nullable=False)
     sdk_session_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
