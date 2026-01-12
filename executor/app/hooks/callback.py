@@ -10,6 +10,7 @@ from app.utils.serializer import serialize_message
 class CallbackHook(AgentHook):
     def __init__(self, client: CallbackClient):
         self.client = client
+        self.execution_error: Optional[Exception] = None
 
     def _build_report(
         self,
@@ -41,3 +42,22 @@ class CallbackHook(AgentHook):
                 new_message=message,
             )
         )
+
+    async def on_teardown(self, context: ExecutionContext):
+        status = (
+            CallbackStatus.COMPLETED
+            if self.execution_error is None
+            else CallbackStatus.FAILED
+        )
+        progress = 100
+
+        await self.client.send(
+            self._build_report(
+                context=context,
+                status=status,
+                progress=progress,
+            )
+        )
+
+    async def on_error(self, context: ExecutionContext, error: Exception):
+        self.execution_error = error
