@@ -1,5 +1,5 @@
 import i18next from "./i18next";
-import { headerName } from "./settings";
+import { fallbackLng, headerName } from "./settings";
 import { headers } from "next/headers";
 
 export async function getT(
@@ -17,9 +17,11 @@ export async function getT(
     await i18next.loadNamespaces(ns);
   }
 
+  const fixedLng = lng ?? i18next.resolvedLanguage ?? fallbackLng;
+
   return {
     t: i18next.getFixedT(
-      lng ?? i18next.resolvedLanguage,
+      fixedLng,
       Array.isArray(ns) ? ns[0] : ns,
       options?.keyPrefix,
     ),

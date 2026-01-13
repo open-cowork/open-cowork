@@ -182,6 +182,16 @@ Global handlers in `app/core/errors/exception_handlers.py` process:
 - **DO** raise `AppException` for business errors, `HTTPException` for HTTP-specific errors
 - **DO NOT** log errors - global handler uses `logger.exception()`
 
+### Frontend Styling
+
+Use Tailwind CSS v4 utility classes with CSS variables. All colors, shadows, and spacing should reference the design system variables in `app/globals.css`:
+
+- Colors: `var(--background)`, `var(--foreground)`, `var(--primary)`, `var(--border)`, etc.
+- Shadows: `var(--shadow-sm)`, `var(--shadow-md)`, `var(--shadow-lg)`, etc.
+- Border radius: `var(--radius)`
+
+**DO NOT** hardcode colors like `#ffffff` or write raw CSS without using these variables.
+
 ## Linting and Formatting
 
 **Python:**

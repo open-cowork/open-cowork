@@ -46,7 +46,8 @@
 
   "hints": {
     "send": "发送",
-    "newLine": "换行"
+    "newLine": "换行",
+    "separator": "，"
   },
 
   "status": {
@@ -54,5 +55,20 @@
     "running": "进行中",
     "completed": "已完成",
     "failed": "失败"
+  },
+
+  "mocks": {
+    "projects": {
+      "newProject": "新项目"
+    },
+    "taskHistory": {
+      "refactorFrontend": "帮我重构前端的代码",
+      "researchClaude": "研究一下 claude code"
+    },
+    "timestamps": {
+      "twoMinutesAgo": "2 分钟前",
+      "oneHourAgo": "1 小时前",
+      "justNow": "刚刚"
+    }
   }
 }

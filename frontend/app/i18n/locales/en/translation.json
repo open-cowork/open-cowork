@@ -46,7 +46,8 @@
 
   "hints": {
     "send": "Send",
-    "newLine": "Shift + Enter to new line"
+    "newLine": "New line",
+    "separator": ","
   },
 
   "status": {
@@ -54,5 +55,20 @@
     "running": "Running",
     "completed": "Completed",
     "failed": "Failed"
+  },
+
+  "mocks": {
+    "projects": {
+      "newProject": "New project"
+    },
+    "taskHistory": {
+      "refactorFrontend": "Help me refactor the frontend code",
+      "researchClaude": "Research Claude Code"
+    },
+    "timestamps": {
+      "twoMinutesAgo": "2 minutes ago",
+      "oneHourAgo": "1 hour ago",
+      "justNow": "Just now"
+    }
   }
 }
