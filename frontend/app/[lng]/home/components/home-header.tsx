@@ -1,15 +1,26 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Coins } from "lucide-react";
 
 import { useT } from "@/app/i18n/client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { CreditsPopover } from "./credits-popover";
+import { UserMenu } from "@/components/user-menu";
 
-export function HomeHeader() {
+import { useUserAccount } from "@/hooks/use-user-account";
+
+interface HomeHeaderProps {
+  onOpenSettings?: () => void;
+}
+
+export function HomeHeader({ onOpenSettings }: HomeHeaderProps) {
   const { t } = useT("translation");
+  const router = useRouter();
+  const { credits, isLoading } = useUserAccount();
 
   return (
     <header className="flex h-12 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-sm">
@@ -29,24 +40,29 @@ export function HomeHeader() {
         <Button
           variant="ghost"
           size="icon"
+          onClick={() => router.push("/notifications")}
           className="size-8"
           title={t("header.notifications")}
         >
           <Bell className="size-4" />
         </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 px-2.5 text-sm"
-        >
-          <Coins className="size-4 text-primary" />
-          <span>4,300</span>
-        </Button>
-        <Avatar className="size-8 cursor-pointer">
-          <AvatarFallback className="bg-primary text-xs text-primary-foreground">
-            U
-          </AvatarFallback>
-        </Avatar>
+        <CreditsPopover
+          trigger={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mx-1 h-8 gap-1.5 rounded-full border border-primary/10 bg-primary/5 px-3 text-sm font-medium text-primary hover:bg-primary/10 hover:text-primary"
+            >
+              <Coins className="size-3.5" />
+              <span>{isLoading ? "..." : credits?.total?.toLocaleString()}</span>
+            </Button>
+          }
+        />
+        <UserMenu
+          onOpenSettings={() => {
+            if (onOpenSettings) onOpenSettings();
+          }}
+        />
       </div>
     </header>
   );

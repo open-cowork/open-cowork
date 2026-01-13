@@ -7,6 +7,7 @@ import type { TaskHistoryItem, TaskStatus } from "../model/types";
 type AddTaskOptions = {
   status?: TaskStatus;
   timestamp?: string;
+  projectId?: string | null;
 };
 
 const MAX_TASK_TITLE_LEN = 50;
@@ -29,6 +30,7 @@ export function useTaskHistory(getInitialTasks: () => TaskHistoryItem[]) {
         title: displayTitle,
         status: options.status ?? "pending",
         timestamp: options.timestamp,
+        projectId: options.projectId,
       };
 
       setTaskHistory((prev) => [newTask, ...prev]);
@@ -41,5 +43,16 @@ export function useTaskHistory(getInitialTasks: () => TaskHistoryItem[]) {
     setTaskHistory((prev) => prev.filter((task) => task.id !== taskId));
   }, []);
 
-  return { taskHistory, addTask, removeTask };
+  const moveTask = React.useCallback(
+    (taskId: string, projectId: string | null) => {
+      setTaskHistory((prev) =>
+        prev.map((task) =>
+          task.id === taskId ? { ...task, projectId } : task,
+        ),
+      );
+    },
+    [],
+  );
+
+  return { taskHistory, addTask, removeTask, moveTask };
 }

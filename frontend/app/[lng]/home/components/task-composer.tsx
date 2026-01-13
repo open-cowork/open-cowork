@@ -3,6 +3,8 @@
 import * as React from "react";
 import {
   ArrowUp,
+  FileText,
+  Figma,
   Mic,
   MoreHorizontal,
   Plus,
@@ -11,9 +13,17 @@ import {
 
 import { useT } from "@/app/i18n/client";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 
-import { CONNECTED_TOOLS } from "../model/constants";
+import {
+  MOCK_CONNECTORS,
+} from "../model/connectors";
 
 export function TaskComposer({
   textareaRef,
@@ -52,24 +62,55 @@ export function TaskComposer({
       <div className="flex items-center justify-between px-3 pb-3">
         {/* 左侧操作按钮 */}
         <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-9 rounded-xl hover:bg-accent"
-            title={t("hero.attachFile")}
-          >
-            <Plus className="size-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-9 rounded-xl hover:bg-accent"
-            title={t("hero.tools")}
-          >
-            <SlidersHorizontal className="size-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-9 rounded-xl hover:bg-accent"
+                title={t("hero.attachFile")}
+              >
+                <Plus className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuItem>
+                <FileText className="mr-2 size-4" />
+                <span>从本地文件导入</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Figma className="mr-2 size-4" />
+                <span>从 Figma 导入</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-9 rounded-xl hover:bg-accent"
+                title={t("hero.tools")}
+              >
+                <SlidersHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 max-h-64 overflow-y-auto">
+              {MOCK_CONNECTORS.filter((c) => c.type === "app").map((connector) => (
+                <DropdownMenuItem key={connector.id}>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-2">
+                      <connector.icon className="size-4" />
+                      <span>{connector.title}</span>
+                    </div>
+                    <span className="text-xs text-primary font-medium">连接</span>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* 右侧操作按钮 */}
@@ -91,32 +132,6 @@ export function TaskComposer({
             title={t("hero.send")}
           >
             <ArrowUp className="size-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* 工具连接栏 */}
-      <div className="flex items-center justify-between border-t border-border bg-muted/30 px-4 py-2">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <SlidersHorizontal className="size-3.5" />
-          <span>{t("hero.tools")}</span>
-        </div>
-        <div className="flex items-center gap-0.5">
-          {CONNECTED_TOOLS.slice(0, 6).map((tool) => (
-            <div
-              key={tool.id}
-              className="flex size-6 cursor-pointer items-center justify-center rounded-full text-sm transition-colors hover:bg-accent"
-              title={tool.name}
-            >
-              {tool.icon}
-            </div>
-          ))}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-6 rounded-full text-muted-foreground hover:text-foreground"
-          >
-            <MoreHorizontal className="size-3.5" />
           </Button>
         </div>
       </div>

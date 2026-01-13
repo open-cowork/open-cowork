@@ -214,3 +214,45 @@
     letter-spacing: var(--tracking-normal);
   }
 }
+
+/* Mobile Swiper Pagination Styles */
+.swiper-pagination {
+  bottom: 0 !important;
+  height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  background: hsl(var(--background)) !important;
+  border-top: 1px solid hsl(var(--border)) !important;
+  padding: 0.5rem 1rem !important;
+  overflow: visible !important;
+}
+
+.swiper-pagination-bullet {
+  width: auto !important;
+  height: 32px !important;
+  margin: 0 !important;
+  padding: 0 1rem !important;
+  border-radius: var(--radius) !important;
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  line-height: 1 !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 2px 8px hsl(var(--primary) / 0.25) !important;
+}
