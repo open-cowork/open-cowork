@@ -33,19 +33,11 @@ const mockFiles: FileNode[] = [
     path: "/test",
     children: [
       {
-        id: "file-pdf-1",
-        name: "示例PDF文档.pdf",
+        id: "file-pdf-3",
+        name: "arXiv 深度学习论文.pdf",
         type: "file",
-        path: "/test/sample.pdf",
-        url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        mimeType: "application/pdf",
-      },
-      {
-        id: "file-pdf-2",
-        name: "Mozilla示例PDF.pdf",
-        type: "file",
-        path: "/test/mozilla-sample.pdf",
-        url: "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf",
+        path: "/test/arxiv-2601-07708.pdf",
+        url: "https://arxiv.org/pdf/2601.07708",
         mimeType: "application/pdf",
       },
       {
@@ -53,27 +45,26 @@ const mockFiles: FileNode[] = [
         name: "Word文档示例.docx",
         type: "file",
         path: "/test/sample.docx",
-        url: "https://calibre-ebook.com/downloads/demos/demo.docx",
+        url: "https://philfan-pic.oss-cn-beijing.aliyuncs.com/test/doc.docx",
         mimeType:
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/msword",
       },
       {
         id: "file-xlsx-1",
         name: "Excel表格示例.xlsx",
         type: "file",
         path: "/test/sample.xlsx",
-        url: "https://file-examples.com/storage/fe783855d4c2f1c5e20a7c1/2017/02/file_example_XLSX_10.xlsx",
+        url: "philfan-pic.oss-cn-beijing.aliyuncs.com/test/xls.xlsx",
         mimeType:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "application/vnd.ms-excel",
       },
       {
-        id: "file-xlsx-2",
-        name: "Excel数据表格.xlsx",
+        id: "file-pptx-1",
+        name: "PowerPoint演示文稿.ppt",
         type: "file",
-        path: "/test/data.xlsx",
-        url: "https://file-examples.com/storage/fe783855d4c2f1c5e20a7c1/2017/10/file_example_XLSX_50.xlsx",
-        mimeType:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        path: "/test/presentation.ppt",
+        url: "philfan-pic.oss-cn-beijing.aliyuncs.com/test/ppt.pptx",
+        mimeType: "application/vnd.ms-powerpoint",
       },
       {
         id: "file-image-1",
@@ -98,36 +89,6 @@ const mockFiles: FileNode[] = [
         path: "/test/image3.jpg",
         url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800",
         mimeType: "image/jpeg",
-      },
-      {
-        id: "file-pptx-1",
-        name: "PowerPoint演示文稿.ppt",
-        type: "file",
-        path: "/test/presentation.ppt",
-        url: "https://file-examples.com/storage/fe783855d4c2f1c5e20a7c1/2017/08/file_example_PPT_250kB.ppt",
-        mimeType: "application/vnd.ms-powerpoint",
-      },
-    ],
-  },
-  {
-    id: "folder-2",
-    name: "前端文件",
-    type: "folder",
-    path: "/frontend",
-    children: [
-      {
-        id: "file-html-1",
-        name: "index.html",
-        type: "file",
-        path: "/frontend/index.html",
-        url: "",
-      },
-      {
-        id: "file-ts-1",
-        name: "app.ts",
-        type: "file",
-        path: "/frontend/app.ts",
-        url: "",
       },
     ],
   },
@@ -248,10 +209,10 @@ export function ArtifactsPanel({ artifacts = [] }: ArtifactsPanelProps) {
     }
   };
 
-  const handleFileSelect = (file: FileNode) => {
+  const handleFileSelect = React.useCallback((file: FileNode) => {
     setSelectedFile(file);
     setViewMode("document");
-  };
+  }, []);
 
   // Document viewer mode with file sidebar
   if (viewMode === "document") {
@@ -299,7 +260,6 @@ export function ArtifactsPanel({ artifacts = [] }: ArtifactsPanelProps) {
                   onFileSelect={handleFileSelect}
                   selectedFile={selectedFile}
                   isOpen={isSidebarOpen}
-                  onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
               </div>
             )}
@@ -359,7 +319,6 @@ export function ArtifactsPanel({ artifacts = [] }: ArtifactsPanelProps) {
                   onFileSelect={handleFileSelect}
                   selectedFile={selectedFile}
                   isOpen={isSidebarOpen}
-                  onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
               </div>
             )}
@@ -446,7 +405,6 @@ export function ArtifactsPanel({ artifacts = [] }: ArtifactsPanelProps) {
                 onFileSelect={handleFileSelect}
                 selectedFile={selectedFile}
                 isOpen={isSidebarOpen}
-                onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
               />
             </div>
           )}

@@ -59,6 +59,7 @@
     "react-diff-viewer-continued": "^3.4.0",
     "react-doc-viewer": "^0.1.15",
     "react-dom": "19.2.3",
+    "react-pdf": "9.0.0",
     "react-hook-form": "^7.71.0",
     "react-i18next": "^16.5.2",
     "react-markdown": "^10.1.0",
