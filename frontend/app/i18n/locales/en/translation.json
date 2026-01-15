@@ -204,5 +204,12 @@
     "home": "Home",
     "settings": "Settings",
     "logout": "Log out"
+  },
+  "pending": {
+    "queued": "Queued",
+    "pending": "Pending",
+    "modify": "Edit",
+    "send": "Send Immediately",
+    "delete": "Delete"
   }
 }

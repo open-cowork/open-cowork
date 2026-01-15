@@ -1,15 +1,19 @@
-import { UserProfile, UserCredits } from "../api-types";
+/**
+ * User API
+ */
 
-// Mock Data
-const MOCK_PROFILE: UserProfile = {
-  id: "u_123456",
+import type { UserProfile, UserCredits } from "../api-types";
+
+// Default user data for development
+const DEFAULT_USER_PROFILE: UserProfile = {
+  id: "default-user",
   email: "user@opencowork.com",
   avatar: "",
   plan: "free",
   planName: "免费",
 };
 
-const MOCK_CREDITS: UserCredits = {
+const DEFAULT_USER_CREDITS: UserCredits = {
   total: "无限",
   free: "无限",
   dailyRefreshCurrent: 9999,
@@ -19,16 +23,12 @@ const MOCK_CREDITS: UserCredits = {
 
 export const userApi = {
   getProfile: async (): Promise<UserProfile> => {
-    // In a real app: return fetchApi<UserProfile>("/user/profile");
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_PROFILE), 500);
-    });
+    // TODO: Replace with real API call
+    return DEFAULT_USER_PROFILE;
   },
 
   getCredits: async (): Promise<UserCredits> => {
-    // In a real app: return fetchApi<UserCredits>("/user/credits");
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_CREDITS), 500);
-    });
+    // TODO: Replace with real API call
+    return DEFAULT_USER_CREDITS;
   },
 };

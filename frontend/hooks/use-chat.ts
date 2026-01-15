@@ -1,34 +1,45 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { chatApi } from "@/lib/api/chat";
 import type { ExecutionSession } from "@/lib/api-types";
 
-const POLLING_INTERVAL = 2500;
+// Session polling interval (configurable via env, default 2500ms)
+const POLLING_INTERVAL = parseInt(
+  process.env.NEXT_PUBLIC_SESSION_POLLING_INTERVAL || "2500",
+  10,
+);
 
 export function useChat(sessionId: string) {
   const [session, setSession] = useState<ExecutionSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
+  const sessionRef = useRef<ExecutionSession | null>(null);
+
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
+
   const fetchSession = useCallback(async () => {
     if (!sessionId) return;
 
     try {
-      const currentProgress = session?.progress || 0;
+      const currentSession = sessionRef.current;
+      const currentProgress = currentSession?.progress || 0;
       const updatedSession = await chatApi.getSession(
         sessionId,
         currentProgress,
       );
 
       // Handle user prompt persistence (logic from original hook)
-      if (!session) {
+      if (!currentSession) {
         const storedPrompt = localStorage.getItem(
           `session_prompt_${sessionId}`,
         );
         if (storedPrompt) {
           updatedSession.user_prompt = storedPrompt;
         }
-      } else if (session.user_prompt) {
-        updatedSession.user_prompt = session.user_prompt;
+      } else if (currentSession.user_prompt) {
+        updatedSession.user_prompt = currentSession.user_prompt;
       }
 
       setSession(updatedSession);
@@ -39,7 +50,7 @@ export function useChat(sessionId: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId, session]);
+  }, [sessionId]);
 
   // Initial load
   useEffect(() => {
@@ -56,10 +67,15 @@ export function useChat(sessionId: string) {
     return () => clearInterval(interval);
   }, [fetchSession, session?.status]);
 
+  const updateSession = useCallback((newSession: Partial<ExecutionSession>) => {
+    setSession((prev) => (prev ? { ...prev, ...newSession } : null));
+  }, []);
+
   return {
     session,
     isLoading,
     error,
     refetch: fetchSession,
+    updateSession,
   };
 }

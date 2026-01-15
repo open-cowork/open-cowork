@@ -202,8 +202,15 @@
   },
   "userMenu": {
     "credits": "积分",
-    "home": "主页",
+    "home": "项目官网",
     "settings": "设置",
     "logout": "退出登录"
+  },
+  "pending": {
+    "queued": "个排队中",
+    "pending": "等待中",
+    "modify": "修改",
+    "send": "立即发送",
+    "delete": "删除"
   }
 }

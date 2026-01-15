@@ -1,4 +1,4 @@
-import { ExecutionContainer } from "../../components/execution-container";
+import { ExecutionContainer } from "../../components/layout/execution-container";
 
 export default async function ChatPage({
   params,

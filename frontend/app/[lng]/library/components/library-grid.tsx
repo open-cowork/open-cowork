@@ -37,6 +37,8 @@ export function LibraryGrid() {
         ],
         actionLabel: t("library.skillsStore.action"),
         actionHref: "/library/skills",
+        badge: t("library.comingSoon"),
+        comingSoon: true,
       },
       {
         id: "mcp-install",
@@ -107,7 +109,6 @@ export function LibraryGrid() {
           icon={card.icon}
           title={card.title}
           description={card.description}
-          features={card.features}
           actionLabel={card.actionLabel}
           badge={card.badge}
           comingSoon={card.comingSoon}

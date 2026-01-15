@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 
-import { MOCK_CONNECTORS } from "../model/connectors";
+import { AVAILABLE_CONNECTORS } from "../model/connectors";
 
 export function TaskComposer({
   textareaRef,
@@ -98,7 +98,7 @@ export function TaskComposer({
               align="start"
               className="w-56 max-h-64 overflow-y-auto"
             >
-              {MOCK_CONNECTORS.filter((c) => c.type === "app").map(
+              {AVAILABLE_CONNECTORS.filter((c) => c.type === "app").map(
                 (connector) => (
                   <DropdownMenuItem key={connector.id}>
                     <div className="flex items-center justify-between w-full">

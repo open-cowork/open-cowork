@@ -1,149 +1,230 @@
-import { ExecutionSession, FileNode, ChatMessage } from "../api-types";
-import { simulateSessionProgress } from "@/app/[lng]/(chat)/model/execution-mocks";
+/**
+ * Chat API - Session execution and messaging
+ * Uses real API calls
+ */
 
-const MOCK_FILES: FileNode[] = [
-  {
-    id: "folder-1",
-    name: "测试文件",
-    type: "folder",
-    path: "/test",
-    children: [
-      {
-        id: "file-pdf-3",
-        name: "arXiv 深度学习论文.pdf",
-        type: "file",
-        path: "/test/arxiv-2601-07708.pdf",
-        url: "https://arxiv.org/pdf/2601.07708",
-        mimeType: "application/pdf",
-      },
-      {
-        id: "file-docx-1",
-        name: "Word文档示例.docx",
-        type: "file",
-        path: "/test/sample.docx",
-        url: "https://philfan-pic.oss-cn-beijing.aliyuncs.com/test/doc.docx",
-        mimeType: "application/msword",
-      },
-      {
-        id: "file-xlsx-1",
-        name: "Excel表格示例.xlsx",
-        type: "file",
-        path: "/test/sample.xlsx",
-        url: "https://philfan-pic.oss-cn-beijing.aliyuncs.com/test/xls.xlsx",
-        mimeType: "application/vnd.ms-excel",
-      },
-      {
-        id: "file-pptx-1",
-        name: "PowerPoint演示文稿.ppt",
-        type: "file",
-        path: "/test/presentation.ppt",
-        url: "https://philfan-pic.oss-cn-beijing.aliyuncs.com/test/ppt.pptx",
-        mimeType: "application/vnd.ms-powerpoint",
-      },
-      {
-        id: "file-image-1",
-        name: "示例图片1.jpg",
-        type: "file",
-        path: "/test/image1.jpg",
-        url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-        mimeType: "image/jpeg",
-      },
-    ],
-  },
-];
+import { sessionApi, taskApi } from "../api-client";
+import type {
+  ExecutionSession,
+  FileNode,
+  ChatMessage,
+  SessionResponse,
+  TaskEnqueueResponse,
+} from "../api-types";
+
+/**
+ * Convert backend SessionResponse to frontend ExecutionSession format
+ */
+function toExecutionSession(
+  session: SessionResponse,
+  progress: number = 0,
+): ExecutionSession {
+  return {
+    session_id: session.session_id,
+    time: session.updated_at,
+    status:
+      session.status === "completed"
+        ? "completed"
+        : session.status === "failed"
+          ? "failed"
+          : session.status === "running"
+            ? "running"
+            : "accepted",
+    progress,
+    state_patch: session.state_patch ?? {},
+    task_name: undefined,
+    user_prompt: undefined,
+  };
+}
+
+/**
+ * Create a default empty execution session for error cases
+ */
+function createDefaultSession(sessionId: string): ExecutionSession {
+  return {
+    session_id: sessionId,
+    time: new Date().toISOString(),
+    status: "accepted",
+    progress: 0,
+    state_patch: {},
+    task_name: undefined,
+    user_prompt: undefined,
+  };
+}
 
 export const chatApi = {
+  /**
+   * Get execution session state
+   */
   getSession: async (
     sessionId: string,
     currentProgress: number = 0,
   ): Promise<ExecutionSession> => {
-    // In a real app: return fetchApi<ExecutionSession>(`/chat/sessions/${sessionId}`);
+    try {
+      const session = await sessionApi.get(sessionId);
+      return toExecutionSession(session, currentProgress);
+    } catch (error) {
+      console.error("[Chat API] Failed to get session:", error);
+      return createDefaultSession(sessionId);
+    }
+  },
 
-    // Using the existing mock simulation logic
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const session = simulateSessionProgress(sessionId, currentProgress);
-        resolve(session);
-      }, 300);
+  /**
+   * Create new execution session with a prompt
+   */
+  createSession: async (
+    prompt: string,
+    userId: string = "default-user",
+  ): Promise<TaskEnqueueResponse> => {
+    return taskApi.enqueue({
+      user_id: userId,
+      prompt,
+      schedule_mode: "immediate",
     });
   },
 
   /**
-   * 创建新的执行会话 (在新会话页面调用)
+   * Send message to existing session (continues the conversation)
    */
-  createSession: async (prompt: string): Promise<ExecutionSession> => {
-    console.log("[Mock API] Creating new session with prompt:", prompt);
-
-    // 模拟网络延迟
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const sessionId = Date.now().toString();
-        // 模拟创建出的新 Session
-        const session = simulateSessionProgress(sessionId, 0);
-        session.user_prompt = prompt;
-        session.task_name = prompt.slice(0, 30);
-        console.log("[Mock API] Session created:", sessionId);
-        resolve(session);
-      }, 800);
-    });
-  },
-
-  /**
-   * 在已有会话中发送新消息
-   */
-  sendMessage: async (sessionId: string, content: string): Promise<void> => {
-    console.log(`[Mock API] Sending message to session ${sessionId}:`, content);
-
-    // 模拟网络延迟
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(`[Mock API] Message delivered to ${sessionId}`);
-        resolve();
-      }, 500);
-    });
-  },
-
-  /**
-   * 获取会话消息列表 (目前返回 Mock 的 AI 回复)
-   */
-  getMessages: async (
+  sendMessage: async (
     sessionId: string,
-    userMessageId?: string,
-  ): Promise<ChatMessage[]> => {
-    console.log(
-      `[Mock API] Fetching messages for session: ${sessionId}${userMessageId ? `, triggered by: ${userMessageId}` : ""}`,
-    );
-
-    // 模拟网络延迟和生成思考过程
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const reply: ChatMessage = {
-          id: `msg-reply-${Date.now()}`,
-          role: "assistant",
-          content:
-            "我已经收到您的指令，正在分析当前工作区的上下文。根据您的要求，我将启动相应的自动化流程。您可以关注左侧的任务清单来查看进度。",
-          status: "completed",
-          timestamp: new Date().toISOString(),
-          metadata: {
-            model: "claude-sonnet-4.5",
-            tokensUsed: 156,
-            duration: 1200,
-          },
-        };
-        console.log(`[Mock API] Messages delivered for session ${sessionId}`);
-        resolve([reply]);
-      }, 1500);
+    content: string,
+    userId: string = "default-user",
+  ): Promise<TaskEnqueueResponse> => {
+    return taskApi.enqueue({
+      user_id: userId,
+      prompt: content,
+      session_id: sessionId,
+      schedule_mode: "immediate",
     });
   },
 
   /**
-   * 获取工作区文件列表 (目前返回 Mock 数据)
+   * Get messages for a session
+   */
+  getMessages: async (sessionId: string): Promise<ChatMessage[]> => {
+    try {
+      const messages = await sessionApi.getMessages(sessionId);
+      const processedMessages = messages
+        .map((msg) => {
+          let content = "";
+
+          // msg.content is always Record<string, unknown>
+          if (msg.content) {
+            const contentObj = msg.content;
+
+            // Skip system init messages - they are internal and should not be displayed
+            if (
+              contentObj._type === "SystemMessage" &&
+              contentObj.subtype === "init"
+            ) {
+              return null; // Will be filtered out
+            }
+
+            // Extract displayable content from various message types
+            // Priority: result > text > message (from content object)
+            if (contentObj._type === "ResultMessage" && contentObj.result) {
+              content = String(contentObj.result);
+            } else if (contentObj.result) {
+              content = String(contentObj.result);
+            } else if (contentObj.text) {
+              content = String(contentObj.text);
+            } else if (contentObj.message) {
+              content = String(contentObj.message);
+            }
+          }
+
+          // Fallback to text_preview only if we couldn't extract from content
+          if (!content && msg.text_preview) {
+            content = msg.text_preview;
+          }
+
+          // Skip messages with no displayable content
+          if (!content) {
+            return null;
+          }
+
+          return {
+            id: msg.id.toString(),
+            role: msg.role as "user" | "assistant" | "system",
+            content,
+            status: "completed" as const,
+            timestamp: msg.created_at,
+          };
+        })
+        .filter((msg): msg is NonNullable<typeof msg> => msg !== null);
+
+      // Deduplicate messages: if one message's content is a prefix of another, keep only the longer one
+      const deduplicatedMessages: typeof processedMessages = [];
+      for (const msg of processedMessages) {
+        // Check if this message is a prefix of an existing message or vice versa
+        let shouldAdd = true;
+        let indexToRemove = -1;
+
+        for (let i = 0; i < deduplicatedMessages.length; i++) {
+          const existing = deduplicatedMessages[i];
+          // Skip if different roles
+          if (existing.role !== msg.role) continue;
+
+          // Check if one content is a prefix of the other
+          if (existing.content.startsWith(msg.content)) {
+            // Existing is longer or equal, skip adding this message
+            shouldAdd = false;
+            break;
+          } else if (msg.content.startsWith(existing.content)) {
+            // New message is longer, replace existing
+            indexToRemove = i;
+            break;
+          }
+        }
+
+        if (indexToRemove >= 0) {
+          deduplicatedMessages.splice(indexToRemove, 1);
+        }
+        if (shouldAdd) {
+          deduplicatedMessages.push(msg);
+        }
+      }
+
+      return deduplicatedMessages;
+    } catch (error) {
+      console.error("[Chat API] Failed to get messages:", error);
+      return [];
+    }
+  },
+
+  /**
+   * Get workspace files for a session
    */
   getFiles: async (sessionId?: string): Promise<FileNode[]> => {
-    console.log("[Mock API] Fetching workspace files for session:", sessionId);
-    // 模拟网络延迟
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(MOCK_FILES), 300);
-    });
+    if (!sessionId) {
+      return [];
+    }
+
+    try {
+      const files = await sessionApi.getWorkspaceFiles(sessionId);
+
+      // Helper to recursively fix URLs
+      // Backend might return localhost URLs or incorrect paths, so we reconstruct them on frontend
+      const fixUrls = (nodes: FileNode[]): FileNode[] => {
+        return nodes.map((node) => ({
+          ...node,
+          url: sessionApi.getWorkspaceFileUrl(sessionId, node.path),
+          children: node.children ? fixUrls(node.children) : node.children,
+        }));
+      };
+
+      return fixUrls(files);
+    } catch (error) {
+      console.error("[Chat API] Failed to get files:", error);
+      return [];
+    }
+  },
+
+  /**
+   * Get file download/preview URL
+   */
+  getFileUrl: (sessionId: string, filePath: string): string => {
+    return sessionApi.getWorkspaceFileUrl(sessionId, filePath);
   },
 };

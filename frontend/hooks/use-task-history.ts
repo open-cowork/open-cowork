@@ -1,10 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { tasksApi } from "@/lib/api/projects"; // Using same file for now as they are closely related in mocks
 import type { TaskHistoryItem } from "@/lib/api-types";
-import { useT } from "@/app/i18n/client";
 
 export function useTaskHistory() {
-  const { t } = useT("translation");
   const [taskHistory, setTaskHistory] = useState<TaskHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -19,7 +17,7 @@ export function useTaskHistory() {
         setTaskHistory(JSON.parse(saved));
       } else {
         // 2. If nothing in storage, use API mocks
-        const data = await tasksApi.listHistory(t);
+        const data = await tasksApi.listHistory();
         setTaskHistory(data);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       }
@@ -28,7 +26,7 @@ export function useTaskHistory() {
     } finally {
       setIsLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     fetchTasks();

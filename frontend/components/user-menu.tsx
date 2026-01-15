@@ -48,7 +48,7 @@ export function UserMenu({ trigger, onOpenSettings }: UserMenuProps) {
               <CreditCard className="size-3.5" />
               {t("userMenu.credits")}
             </span>
-            <span className="font-semibold">2,000</span>
+            <span className="font-semibold">9,999</span>
           </div>
           <Separator className="my-1" />
 

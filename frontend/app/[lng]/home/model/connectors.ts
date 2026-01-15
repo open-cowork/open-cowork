@@ -38,7 +38,7 @@ export interface Connector {
   connected?: boolean;
 }
 
-export const MOCK_CONNECTORS: Connector[] = [
+export const AVAILABLE_CONNECTORS: Connector[] = [
   // APPS
   {
     id: "gmail",
