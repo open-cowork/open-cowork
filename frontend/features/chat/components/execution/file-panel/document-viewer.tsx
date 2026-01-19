@@ -18,82 +18,10 @@ import type { DocViewerProps } from "react-doc-viewer";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import rehypeHighlight from "rehype-highlight";
-import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
-import oneDark from "react-syntax-highlighter/dist/esm/styles/prism/one-dark";
-import javascript from "react-syntax-highlighter/dist/esm/languages/prism/javascript";
-import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
-import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
-import jsx from "react-syntax-highlighter/dist/esm/languages/prism/jsx";
-import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
-import jsonLang from "react-syntax-highlighter/dist/esm/languages/prism/json";
-import markdown from "react-syntax-highlighter/dist/esm/languages/prism/markdown";
-import markup from "react-syntax-highlighter/dist/esm/languages/prism/markup";
-import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
-import yaml from "react-syntax-highlighter/dist/esm/languages/prism/yaml";
-import css from "react-syntax-highlighter/dist/esm/languages/prism/css";
-import scss from "react-syntax-highlighter/dist/esm/languages/prism/scss";
-import less from "react-syntax-highlighter/dist/esm/languages/prism/less";
-import go from "react-syntax-highlighter/dist/esm/languages/prism/go";
-import java from "react-syntax-highlighter/dist/esm/languages/prism/java";
-import php from "react-syntax-highlighter/dist/esm/languages/prism/php";
-import ruby from "react-syntax-highlighter/dist/esm/languages/prism/ruby";
-import swift from "react-syntax-highlighter/dist/esm/languages/prism/swift";
-import kotlin from "react-syntax-highlighter/dist/esm/languages/prism/kotlin";
-import csharp from "react-syntax-highlighter/dist/esm/languages/prism/csharp";
-import cLang from "react-syntax-highlighter/dist/esm/languages/prism/c";
-import cpp from "react-syntax-highlighter/dist/esm/languages/prism/cpp";
-import objectivec from "react-syntax-highlighter/dist/esm/languages/prism/objectivec";
-import sql from "react-syntax-highlighter/dist/esm/languages/prism/sql";
-import powershell from "react-syntax-highlighter/dist/esm/languages/prism/powershell";
-import docker from "react-syntax-highlighter/dist/esm/languages/prism/docker";
-import ini from "react-syntax-highlighter/dist/esm/languages/prism/ini";
-import rust from "react-syntax-highlighter/dist/esm/languages/prism/rust";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
-
-import "highlight.js/styles/github-dark.css";
-
-const registerSyntaxLanguages = (() => {
-  let registered = false;
-  return () => {
-    if (registered) return;
-    const register = (name: string, language: unknown) => {
-      SyntaxHighlighter.registerLanguage(name, language);
-    };
-
-    register("javascript", javascript);
-    register("typescript", typescript);
-    register("tsx", tsx);
-    register("jsx", jsx);
-    register("python", python);
-    register("json", jsonLang);
-    register("markdown", markdown);
-    register("markup", markup);
-    register("bash", bash);
-    register("yaml", yaml);
-    register("css", css);
-    register("scss", scss);
-    register("less", less);
-    register("go", go);
-    register("java", java);
-    register("php", php);
-    register("ruby", ruby);
-    register("swift", swift);
-    register("kotlin", kotlin);
-    register("csharp", csharp);
-    register("c", cLang);
-    register("cpp", cpp);
-    register("objectivec", objectivec);
-    register("sql", sql);
-    register("powershell", powershell);
-    register("docker", docker);
-    register("ini", ini);
-    register("rust", rust);
-    registered = true;
-  };
-})();
-
-registerSyntaxLanguages();
+import { MarkdownCode } from "@/components/shared/markdown-code";
+import { SyntaxHighlighter, oneDark, oneLight } from "@/lib/markdown/prism";
 
 const dispatchCloseViewer = () => {
   if (typeof window === "undefined") return;
@@ -419,54 +347,6 @@ const DocumentViewerToolbar = ({
   </div>
 );
 
-const MarkdownPreBlock = ({
-  children,
-  className,
-  ...props
-}: React.DetailedHTMLProps<
-  React.HTMLAttributes<HTMLPreElement>,
-  HTMLPreElement
-> & { node?: unknown }) => {
-  const preRef = React.useRef<HTMLPreElement>(null);
-  const [copied, setCopied] = React.useState(false);
-
-  const onCopy = async () => {
-    if (!preRef.current) return;
-    try {
-      await navigator.clipboard.writeText(preRef.current.textContent ?? "");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch (error) {
-      console.error("[DocumentViewer] Copy block failed", error);
-    }
-  };
-
-  return (
-    <div className="relative group my-4 overflow-hidden rounded-xl border bg-muted/40">
-      <div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-8 w-8"
-          onClick={onCopy}
-        >
-          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-        </Button>
-      </div>
-      <pre
-        ref={preRef}
-        className={cn(
-          "overflow-x-auto whitespace-pre bg-background/80 p-4 text-sm leading-relaxed",
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </pre>
-    </div>
-  );
-};
-
 interface TextDocumentViewerProps {
   file: FileNode;
   language?: string;
@@ -479,6 +359,7 @@ const TextDocumentViewer = ({
   resolvedUrl,
 }: TextDocumentViewerProps) => {
   const { t } = useT("translation");
+  const { resolvedTheme } = useTheme();
   const { state, refetch } = useFileTextContent({
     file,
     fallbackUrl: resolvedUrl,
@@ -487,6 +368,7 @@ const TextDocumentViewer = ({
   const syntaxLanguage =
     language && language !== DEFAULT_TEXT_LANGUAGE ? language : undefined;
   const subtitle = (language || DEFAULT_TEXT_LANGUAGE).toUpperCase();
+  const syntaxTheme = resolvedTheme === "dark" ? oneDark : oneLight;
 
   const handleCopy = React.useCallback(async () => {
     if (state.status !== "success") return;
@@ -564,7 +446,7 @@ const TextDocumentViewer = ({
       <div className="flex-1 overflow-auto min-h-0 p-4">
         <SyntaxHighlighter
           language={syntaxLanguage}
-          style={oneDark}
+          style={syntaxTheme}
           wrapLines={false}
           showLineNumbers
           lineNumberStyle={{
@@ -699,24 +581,9 @@ const MarkdownDocumentViewer = ({
           <div className="prose prose-sm dark:prose-invert max-w-none break-words [&_*]:break-words">
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkBreaks]}
-              rehypePlugins={[rehypeHighlight]}
               components={{
-                pre: MarkdownPreBlock,
-                code: ({ className, children, ...props }) => {
-                  const isInline = !className;
-                  return isInline ? (
-                    <code
-                      className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[0.85rem]"
-                      {...props}
-                    >
-                      {children}
-                    </code>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                },
+                pre: ({ children }) => <>{children}</>,
+                code: MarkdownCode,
                 a: ({ children, href, ...props }) => (
                   <a
                     className="text-primary underline underline-offset-4 decoration-primary/30 hover:decoration-primary"
