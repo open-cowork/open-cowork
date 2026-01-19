@@ -20,7 +20,7 @@ import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
-import { MarkdownCode } from "@/components/shared/markdown-code";
+import { MarkdownCode, MarkdownPre } from "@/components/shared/markdown-code";
 import { SyntaxHighlighter, oneDark, oneLight } from "@/lib/markdown/prism";
 
 const dispatchCloseViewer = () => {
@@ -582,7 +582,7 @@ const MarkdownDocumentViewer = ({
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkBreaks]}
               components={{
-                pre: ({ children }) => <>{children}</>,
+                pre: MarkdownPre,
                 code: MarkdownCode,
                 a: ({ children, href, ...props }) => (
                   <a

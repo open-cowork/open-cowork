@@ -12,10 +12,12 @@ import {
   oneLight,
 } from "@/lib/markdown/prism";
 
-type MarkdownCodeProps = {
-  inline?: boolean;
-  className?: string;
-  children?: React.ReactNode;
+type MarkdownCodeProps = React.ComponentPropsWithoutRef<"code"> & {
+  node?: unknown;
+};
+
+type MarkdownPreProps = React.ComponentPropsWithoutRef<"pre"> & {
+  node?: unknown;
 };
 
 const extractLanguage = (className?: string) => {
@@ -25,15 +27,54 @@ const extractLanguage = (className?: string) => {
 };
 
 export const MarkdownCode = ({
-  inline,
+  node,
   className,
   children,
+  ...props
 }: MarkdownCodeProps) => {
+  void node; // react-markdown passes `node`; don't forward it to the DOM.
+  return (
+    <code
+      className={[
+        "px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[0.85rem]",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      {...props}
+    >
+      {children}
+    </code>
+  );
+};
+
+export const MarkdownPre = ({ node, children, ...props }: MarkdownPreProps) => {
+  void node; // react-markdown passes `node`; don't forward it to the DOM.
   const { resolvedTheme } = useTheme();
   const [copied, setCopied] = React.useState(false);
-  const rawCode = Array.isArray(children) ? children.join("") : children;
-  const code = String(rawCode ?? "").replace(/\n$/, "");
-  const language = getPrismLanguage(extractLanguage(className));
+
+  // `react-markdown@10` no longer passes an `inline` prop; handle code blocks at the `<pre>` level.
+  type CodeChildProps = { children?: React.ReactNode; className?: string };
+  const codeChild = React.Children.toArray(children).find(
+    (child): child is React.ReactElement<CodeChildProps> =>
+      React.isValidElement<CodeChildProps>(child) &&
+      typeof child.props.children !== "undefined",
+  );
+
+  if (!codeChild) {
+    return <pre {...props}>{children}</pre>;
+  }
+
+  const rawCode = codeChild?.props?.children;
+  const rawCodeText = Array.isArray(rawCode) ? rawCode.join("") : rawCode;
+  const code = String(rawCodeText ?? "").replace(/\n$/, "");
+
+  const codeClassName =
+    typeof codeChild?.props?.className === "string"
+      ? codeChild.props.className
+      : undefined;
+
+  const language = getPrismLanguage(extractLanguage(codeClassName));
   const syntaxTheme = resolvedTheme === "dark" ? oneDark : oneLight;
 
   const onCopy = async () => {
@@ -42,17 +83,9 @@ export const MarkdownCode = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch (error) {
-      console.error("[MarkdownCode] Copy failed", error);
+      console.error("[MarkdownPre] Copy failed", error);
     }
   };
-
-  if (inline) {
-    return (
-      <code className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[0.85rem]">
-        {children}
-      </code>
-    );
-  }
 
   return (
     <div className="relative group my-4 overflow-hidden rounded-xl border bg-muted/40">

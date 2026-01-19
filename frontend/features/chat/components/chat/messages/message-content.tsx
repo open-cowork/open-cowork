@@ -7,7 +7,7 @@ import type { MessageBlock } from "@/features/chat/types";
 import type { ToolUseBlock, ToolResultBlock } from "@/features/chat/types";
 import { ToolChain } from "./tool-chain";
 import remarkBreaks from "remark-breaks";
-import { MarkdownCode } from "@/components/shared/markdown-code";
+import { MarkdownCode, MarkdownPre } from "@/components/shared/markdown-code";
 
 type LinkProps = {
   children?: React.ReactNode;
@@ -64,7 +64,7 @@ export function MessageContent({
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkBreaks]}
           components={{
-            pre: ({ children }) => <>{children}</>,
+            pre: MarkdownPre,
             code: MarkdownCode,
             a: ({ children, href, ...props }: LinkProps) => (
               <a
@@ -144,7 +144,7 @@ export function MessageContent({
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkBreaks]}
                 components={{
-                  pre: ({ children }) => <>{children}</>,
+                  pre: MarkdownPre,
                   code: MarkdownCode,
                   a: ({ children, href, ...props }: LinkProps) => (
                     <a
