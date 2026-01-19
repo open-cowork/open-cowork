@@ -3,7 +3,9 @@
 
 # Poco
 
-**A Cloud-Based AI Agent Execution Platform**
+**Manus-like autonomy, powered by cloud-based Claude Code**
+
+An intelligent agent harnessing cloud-based Claude Code to realize a Manus-like autonomous experience.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
@@ -16,24 +18,27 @@
 
 ---
 
-### Overview
+## Positioning
 
-Poco is a cloud-based AI agent execution platform inspired by Anthropic's [Cowork](https://claude.ai/code). It orchestrates Claude AI agents to perform autonomous tasks beyond coding—organizing files, writing documents, analyzing data, and more—in a distributed cloud environment.
+Poco turns Claude Code into a cloud-native, autonomous coworker. Built on cloud-based Claude Code, it delivers a Manus-like autonomous experience while keeping humans in the loop, and it plugs into the MCP/Skills ecosystem for rich extensibility.
 
-![home](assets/home.png)
+## Why Poco
 
-### What is Cowork?
+- **Full Claude Code experience**: everything Claude Code can do, not just coding
+- **General-purpose agents via Skills/MCP**: connect tools and data to handle docs, organization, and analysis
+- **Cloud execution with human control**: queue tasks in parallel, confirm before key actions
 
-When Anthropic launched Claude Code (an AI coding assistant), they discovered something unexpected: developers weren't just using it to write code. They were using it to organize materials, write documentation, generate reports, analyze data, and even as a "digital colleague" for all kinds of work.
+## What you can do
 
-This insight led to **Cowork**, a product that extends Claude's capabilities from "chat assistant" to "digital colleague." Unlike traditional conversational AI that simply responds to prompts, Cowork:
+- Give a goal, get an executable plan with live progress
+- Let agents read, write, and organize real files safely
+- Run multiple tasks in parallel across desktop and mobile
 
-- **Executes tasks autonomously** — Claude plans, executes, and syncs progress continuously
-- **Operates on real files** — With user permission, directly access, read, edit, and create files
-- **Works in parallel** — Queue multiple tasks without waiting for completion
-- **Keeps you in control** — Confirms before any important operations
+## Ecosystem
 
-Poco brings this powerful collaboration paradigm to the cloud, enabling teams to deploy AI agents at scale.
+Poco embraces the **MCP/Skills** ecosystem so you can connect tools, data sources, and workflows as building blocks. Bring your own MCP servers or Skills to extend what agents can do without reinventing the platform.
+
+## Product Gallery
 
 Demo1: use three prompts to build a classic google game with doubao's head 😂
 
@@ -47,93 +52,8 @@ Demo3: works fine on mobile devices.
 
 ![mobile-1](https://github.com/user-attachments/assets/ccf680bb-358c-4fc9-ad97-50f75b5ea3ac)
 
-### Key Features
-
-- 🚀 **Autonomous Task Execution** — Agents plan and execute complex tasks independently
-- 📁 **Real File Operations** — Direct access to workspace files with permission control
-- 🔄 **Parallel Processing** — Queue and execute multiple tasks concurrently
-- 🎯 **Progress Tracking** — Real-time status updates and execution monitoring
-- 🔌 **Extensible Architecture** — Hook-based plugin system for customization
-- 📱 **Mobile Friendly** — Responsive design for mobile devices
-
-![chat](assets/chat.png)
-
-![mcp](assets/mcp.png)
-
-### Architecture
-
-Poco consists of four core services working in harmony:
-
-| Service              | Technology           | Purpose                             |
-| -------------------- | -------------------- | ----------------------------------- |
-| **Frontend**         | Next.js 16, React 19 | Web UI for task management          |
-| **Backend**          | FastAPI, SQLAlchemy  | API server & database orchestration |
-| **Executor**         | claude-agent-sdk     | Agent execution engine              |
-| **Executor Manager** | APScheduler          | Task scheduling & dispatch          |
-
-### Tech Stack
-
-**Frontend:**
-
-- Next.js 16 (App Router)
-- React 19
-- TypeScript
-- Tailwind CSS v4
-- shadcn/ui
-
-**Backend Services:**
-
-- Python 3.12+
-- FastAPI
-- SQLAlchemy 2.0
-- PostgreSQL
-- APScheduler
-
-### Quick Start
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/poco.git
-cd poco
-
-# Install Python dependencies (for each service)
-cd backend && uv sync
-cd ../executor && uv sync
-cd ../executor_manager && uv sync
-
-# Install frontend dependencies
-cd frontend && pnpm install
-
-# Start services (each in separate terminal)
-# Backend
-cd backend && uvicorn app.main:app --reload
-
-# Executor
-cd executor && uvicorn app.main:app --reload
-
-# Executor Manager
-cd executor_manager && uvicorn app.main:app --reload
-
-# Frontend
-cd frontend && pnpm dev
-```
-
-### Documentation
-
-For detailed documentation, see [CLAUDE.md](./CLAUDE.md).
-
-### Community
+## Community
 
 Join our WeChat group for updates and discussion:
 
-![WeChat Group QR](assets/wx_group.jpg)
-
-### Acknowledgments
-
-Inspired by [Anthropic's Cowork](https://claude.ai/code), an AI-powered collaboration platform for everyone.
-
----
-
-<div align="center">
-  <p>Built with ❤️ by the Poco team</p>
-</div>
+<img src="assets/wx_group.jpg" alt="WeChat Group QR" width="180">
