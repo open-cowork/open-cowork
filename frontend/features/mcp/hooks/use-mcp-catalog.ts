@@ -3,57 +3,57 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import type { McpPreset, UserMcpConfig } from "@/features/mcp/types";
+import type { McpServer, UserMcpInstall } from "@/features/mcp/types";
 import { mcpService } from "@/features/mcp/services/mcp-service";
 import { useEnvVarsStore } from "@/features/env-vars/hooks/use-env-vars-store";
 import { useT } from "@/lib/i18n/client";
 
 export interface McpDisplayItem {
-  preset: McpPreset;
-  config?: UserMcpConfig;
+  server: McpServer;
+  install?: UserMcpInstall;
 }
 
 export function useMcpCatalog() {
   const { t } = useT("translation");
-  const [presets, setPresets] = useState<McpPreset[]>([]);
-  const [configs, setConfigs] = useState<UserMcpConfig[]>([]);
-  const [selectedPreset, setSelectedPreset] = useState<McpPreset | null>(null);
-  const [loadingPresetId, setLoadingPresetId] = useState<number | null>(null);
+  const [servers, setServers] = useState<McpServer[]>([]);
+  const [installs, setInstalls] = useState<UserMcpInstall[]>([]);
+  const [selectedServer, setSelectedServer] = useState<McpServer | null>(null);
+  const [loadingId, setLoadingId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const envVarStore = useEnvVarsStore();
 
-  // Fetch data on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [presetsData, configsData] = await Promise.all([
-          mcpService.listPresets(),
-          mcpService.listConfigs(),
-        ]);
-        setPresets(presetsData);
-        setConfigs(configsData);
-      } catch (error) {
-        console.error("[MCP] Failed to fetch data:", error);
-        toast.error("加载 MCP 列表失败");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [serversData, installsData] = await Promise.all([
+        mcpService.listServers(),
+        mcpService.listInstalls(),
+      ]);
+      setServers(serversData);
+      setInstalls(installsData);
+    } catch (error) {
+      console.error("[MCP] Failed to fetch data:", error);
+      toast.error("加载 MCP 列表失败");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const togglePreset = useCallback(
-    async (presetId: number) => {
-      const config = configs.find((entry) => entry.preset_id === presetId);
-      setLoadingPresetId(presetId);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  const toggleInstall = useCallback(
+    async (serverId: number) => {
+      const install = installs.find((entry) => entry.server_id === serverId);
+      setLoadingId(serverId);
       try {
-        if (config) {
-          const updated = await mcpService.updateConfig(config.id, {
-            enabled: !config.enabled,
+        if (install) {
+          const updated = await mcpService.updateInstall(install.id, {
+            enabled: !install.enabled,
           });
-          setConfigs((prev) =>
-            prev.map((item) => (item.id === config.id ? updated : item)),
+          setInstalls((prev) =>
+            prev.map((item) => (item.id === install.id ? updated : item)),
           );
           toast.success(
             updated.enabled
@@ -61,38 +61,87 @@ export function useMcpCatalog() {
               : t("library.mcpLibrary.toasts.disabled"),
           );
         } else {
-          const created = await mcpService.createConfig({
-            preset_id: presetId,
+          const created = await mcpService.createInstall({
+            server_id: serverId,
             enabled: true,
           });
-          setConfigs((prev) => [...prev, created]);
+          setInstalls((prev) => [...prev, created]);
           toast.success(t("library.mcpLibrary.toasts.enabled"));
         }
       } catch (error) {
         console.error("[MCP] toggle failed:", error);
         toast.error(t("library.mcpLibrary.toasts.error"));
       } finally {
-        setLoadingPresetId(null);
+        setLoadingId(null);
       }
     },
-    [configs, t],
+    [installs, t],
+  );
+
+  const updateServer = useCallback(
+    async (serverId: number, server_config: Record<string, unknown>) => {
+      setLoadingId(serverId);
+      try {
+        const updated = await mcpService.updateServer(serverId, {
+          server_config,
+        });
+        setServers((prev) =>
+          prev.map((item) => (item.id === serverId ? updated : item)),
+        );
+        toast.success(t("library.mcpLibrary.toasts.updated", "保存成功"));
+        return updated;
+      } catch (error) {
+        console.error("[MCP] update failed:", error);
+        toast.error(t("library.mcpLibrary.toasts.error"));
+      } finally {
+        setLoadingId(null);
+      }
+      return null;
+    },
+    [t],
+  );
+
+  const createServer = useCallback(
+    async (name: string, server_config: Record<string, unknown>) => {
+      setLoadingId(-1);
+      try {
+        const created = await mcpService.createServer({
+          name,
+          server_config,
+        });
+        setServers((prev) => [created, ...prev]);
+        toast.success(t("library.mcpLibrary.toasts.created", "创建成功"));
+        return created;
+      } catch (error) {
+        console.error("[MCP] create failed:", error);
+        toast.error(t("library.mcpLibrary.toasts.error"));
+      } finally {
+        setLoadingId(null);
+      }
+      return null;
+    },
+    [t],
   );
 
   const items: McpDisplayItem[] = useMemo(() => {
-    return presets.map((preset) => ({
-      preset,
-      config: configs.find((config) => config.preset_id === preset.id),
+    return servers.map((server) => ({
+      server,
+      install: installs.find((entry) => entry.server_id === server.id),
     }));
-  }, [presets, configs]);
+  }, [servers, installs]);
 
   return {
     items,
+    servers,
+    installs,
     isLoading,
     envVars: envVarStore.envVars,
-    selectedPreset,
-    setSelectedPreset,
-    togglePreset,
-    loadingPresetId,
+    selectedServer,
+    setSelectedServer,
+    toggleInstall,
+    updateServer,
+    createServer,
+    loadingId,
     savingEnvKey: envVarStore.savingEnvKey,
     refreshEnvVars: envVarStore.refreshEnvVars,
     upsertEnvVar: envVarStore.upsertEnvVar,

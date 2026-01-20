@@ -1,77 +1,77 @@
 import { apiClient, API_ENDPOINTS } from "@/lib/api-client";
 import type {
-  McpPreset,
-  McpPresetCreateInput,
-  McpPresetUpdateInput,
-  UserMcpConfig,
-  UserMcpConfigCreateInput,
-  UserMcpConfigUpdateInput,
+  McpServer,
+  McpServerCreateInput,
+  McpServerUpdateInput,
+  UserMcpInstall,
+  UserMcpInstallCreateInput,
+  UserMcpInstallUpdateInput,
 } from "@/features/mcp/types";
 
 export const mcpService = {
-  listPresets: async (options?: {
-    includeInactive?: boolean;
+  listServers: async (options?: {
     revalidate?: number;
-  }): Promise<McpPreset[]> => {
-    const query = options?.includeInactive ? "?include_inactive=true" : "";
-    return apiClient.get<McpPreset[]>(`${API_ENDPOINTS.mcpPresets}${query}`, {
+  }): Promise<McpServer[]> => {
+    return apiClient.get<McpServer[]>(API_ENDPOINTS.mcpServers, {
       next: { revalidate: options?.revalidate },
     });
   },
 
-  getPreset: async (
-    presetId: number,
+  getServer: async (
+    serverId: number,
     options?: { revalidate?: number },
-  ): Promise<McpPreset> => {
-    return apiClient.get<McpPreset>(API_ENDPOINTS.mcpPreset(presetId), {
+  ): Promise<McpServer> => {
+    return apiClient.get<McpServer>(API_ENDPOINTS.mcpServer(serverId), {
       next: { revalidate: options?.revalidate },
     });
   },
 
-  createPreset: async (input: McpPresetCreateInput): Promise<McpPreset> => {
-    return apiClient.post<McpPreset>(API_ENDPOINTS.mcpPresets, input);
+  createServer: async (input: McpServerCreateInput): Promise<McpServer> => {
+    return apiClient.post<McpServer>(API_ENDPOINTS.mcpServers, input);
   },
 
-  updatePreset: async (
-    presetId: number,
-    input: McpPresetUpdateInput,
-  ): Promise<McpPreset> => {
-    return apiClient.patch<McpPreset>(API_ENDPOINTS.mcpPreset(presetId), input);
+  updateServer: async (
+    serverId: number,
+    input: McpServerUpdateInput,
+  ): Promise<McpServer> => {
+    return apiClient.patch<McpServer>(API_ENDPOINTS.mcpServer(serverId), input);
   },
 
-  deletePreset: async (presetId: number): Promise<Record<string, unknown>> => {
+  deleteServer: async (serverId: number): Promise<Record<string, unknown>> => {
     return apiClient.delete<Record<string, unknown>>(
-      API_ENDPOINTS.mcpPreset(presetId),
+      API_ENDPOINTS.mcpServer(serverId),
     );
   },
 
-  listConfigs: async (options?: {
+  listInstalls: async (options?: {
     revalidate?: number;
-  }): Promise<UserMcpConfig[]> => {
-    return apiClient.get<UserMcpConfig[]>(API_ENDPOINTS.mcpConfigs, {
+  }): Promise<UserMcpInstall[]> => {
+    return apiClient.get<UserMcpInstall[]>(API_ENDPOINTS.mcpInstalls, {
       next: { revalidate: options?.revalidate },
     });
   },
 
-  createConfig: async (
-    input: UserMcpConfigCreateInput,
-  ): Promise<UserMcpConfig> => {
-    return apiClient.post<UserMcpConfig>(API_ENDPOINTS.mcpConfigs, input);
+  createInstall: async (
+    input: UserMcpInstallCreateInput,
+  ): Promise<UserMcpInstall> => {
+    return apiClient.post<UserMcpInstall>(API_ENDPOINTS.mcpInstalls, input);
   },
 
-  updateConfig: async (
-    configId: number,
-    input: UserMcpConfigUpdateInput,
-  ): Promise<UserMcpConfig> => {
-    return apiClient.patch<UserMcpConfig>(
-      API_ENDPOINTS.mcpConfig(configId),
+  updateInstall: async (
+    installId: number,
+    input: UserMcpInstallUpdateInput,
+  ): Promise<UserMcpInstall> => {
+    return apiClient.patch<UserMcpInstall>(
+      API_ENDPOINTS.mcpInstall(installId),
       input,
     );
   },
 
-  deleteConfig: async (configId: number): Promise<Record<string, unknown>> => {
+  deleteInstall: async (
+    installId: number,
+  ): Promise<Record<string, unknown>> => {
     return apiClient.delete<Record<string, unknown>>(
-      API_ENDPOINTS.mcpConfig(configId),
+      API_ENDPOINTS.mcpInstall(installId),
     );
   },
 };

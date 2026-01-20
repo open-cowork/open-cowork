@@ -34,13 +34,13 @@ export const API_ENDPOINTS = {
   envVars: "/env-vars",
   envVar: (envVarId: number) => `/env-vars/${envVarId}`,
 
-  // MCP Presets
-  mcpPresets: "/mcp-presets",
-  mcpPreset: (presetId: number) => `/mcp-presets/${presetId}`,
+  // MCP Servers
+  mcpServers: "/mcp-servers",
+  mcpServer: (serverId: number) => `/mcp-servers/${serverId}`,
 
-  // MCP Configs (User)
-  mcpConfigs: "/mcp-configs",
-  mcpConfig: (configId: number) => `/mcp-configs/${configId}`,
+  // MCP Installs (User)
+  mcpInstalls: "/mcp-installs",
+  mcpInstall: (installId: number) => `/mcp-installs/${installId}`,
 
   // Skill Presets
   skillPresets: "/skill-presets",

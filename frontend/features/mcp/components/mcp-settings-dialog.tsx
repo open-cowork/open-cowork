@@ -12,51 +12,49 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useT } from "@/lib/i18n/client";
 
-import type { McpDisplayItem } from "@/features/mcp/hooks/use-mcp-library";
-import type { EnvVar } from "@/features/env-vars/types";
-import type { EnvVarUpsertInput } from "@/features/env-vars/hooks/use-env-vars-store";
+import type { McpDisplayItem } from "@/features/mcp/hooks/use-mcp-catalog";
 
 interface McpSettingsDialogProps {
   item: McpDisplayItem | null;
   open: boolean;
+  isNew?: boolean;
   onClose: () => void;
-  onTogglePreset: (presetId: number) => void;
-  envVars: EnvVar[];
-  savingEnvKey?: string | null;
-  onSaveEnvVar: (input: EnvVarUpsertInput) => Promise<void> | void;
-  loadingPresetId?: number | null;
+  onSave: (payload: {
+    serverId?: number;
+    name?: string;
+    serverConfig: Record<string, unknown>;
+  }) => Promise<void> | void;
 }
 
 export function McpSettingsDialog({
   item,
   open,
+  isNew = false,
   onClose,
+  onSave,
 }: McpSettingsDialogProps) {
   const { t } = useT("translation");
-  const [jsonConfig, setJsonConfig] = React.useState("");
+  const [jsonConfig, setJsonConfig] = React.useState("{}");
+  const [name, setName] = React.useState("");
 
   React.useEffect(() => {
     if (item) {
-      // Construct a representative config object
-      const configObj = {
-        type: item.preset.transport || "stdio",
-        command: item.preset.name || "",
-        args: [],
-        env: item.config?.overrides || item.preset.default_config || {},
-      };
+      const configObj = item.server.server_config || {};
       setJsonConfig(JSON.stringify(configObj, null, 2));
+      setName(item.server.name || "");
+    } else if (isNew) {
+      setJsonConfig("{}");
+      setName("");
     }
-  }, [item]);
+  }, [item, isNew]);
 
-  if (!item) {
+  if (!item && !isNew) {
     return (
       <Dialog open={false} onOpenChange={onClose}>
         <DialogContent />
       </Dialog>
     );
   }
-
-  const { preset } = item;
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
@@ -68,33 +66,20 @@ export function McpSettingsDialog({
         </DialogHeader>
 
         <div className="p-6 bg-background space-y-6">
-          {/* Name Fields Section */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                MCP 标题 (唯一) <span className="text-destructive">*</span>
+                MCP 名称 <span className="text-destructive">*</span>
               </Label>
               <Input
-                value={preset.name}
-                disabled
+                value={name}
+                disabled={!isNew}
+                onChange={(e) => setName(e.target.value)}
                 className="bg-muted/50 font-mono text-sm"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                显示名称
-              </Label>
-              <Input
-                defaultValue={preset.display_name || preset.name}
-                // TODO: Implement display name editing
-                readOnly
-                className="bg-muted/50"
               />
             </div>
           </div>
 
-          {/* JSON Config Section */}
           <div className="space-y-2">
             <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               完整的 JSON 配置
@@ -116,12 +101,18 @@ export function McpSettingsDialog({
             onClick={() => {
               try {
                 const parsed = JSON.parse(jsonConfig);
-                console.log("Saving config:", parsed);
-                // TODO: Implement save logic
+                const trimmedName = name.trim();
+                if (isNew && !trimmedName) {
+                  throw new Error("Name required");
+                }
+                onSave({
+                  serverId: item?.server.id,
+                  name: trimmedName,
+                  serverConfig: parsed,
+                });
                 onClose();
               } catch {
-                // TODO: Show error
-                console.error("Invalid JSON");
+                console.error("Invalid JSON or name");
               }
             }}
           >

@@ -62,8 +62,12 @@ export function UserInputRequestCard({
   const isOtherSelected = (q: UserInputQuestion) =>
     questionState[q.question]?.otherSelected ?? false;
 
-  const isQuestionAnswered = (q: UserInputQuestion) =>
-    questionState[q.question]?.selected.length > 0 || isOtherSelected(q);
+  const isQuestionAnswered = (q: UserInputQuestion) => {
+    const state = questionState[q.question];
+    if (!state) return false;
+    if (state.selected.length > 0) return true;
+    return state.otherSelected && state.otherText.trim().length > 0;
+  };
 
   const allAnswered = questions.every(isQuestionAnswered);
 
@@ -115,12 +119,12 @@ export function UserInputRequestCard({
       if (!state) return null;
 
       const otherText = state.otherSelected ? state.otherText.trim() : "";
-      const selections = q.multiSelect
-        ? [...state.selected, ...(otherText ? [otherText] : [])]
+      const answer = q.multiSelect
+        ? [...state.selected, ...(otherText ? [otherText] : [])].join(", ")
         : otherText || state.selected[0] || "";
 
-      if (!selections) return null;
-      result[q.question] = q.multiSelect ? selections.join(", ") : selections;
+      if (!answer) return null;
+      result[q.question] = answer;
     }
     return result;
   };
