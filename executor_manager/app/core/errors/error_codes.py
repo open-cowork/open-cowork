@@ -20,7 +20,7 @@ class ErrorCode(Enum):
     CALLBACK_FORWARD_FAILED = (30003, "Failed to forward callback to backend")
     EXTERNAL_SERVICE_ERROR = (50201, "External service error")
     ENV_VAR_NOT_FOUND = (40001, "Environment variable not found")
-    MCP_PRESET_NOT_FOUND = (40002, "MCP preset not found")
+    MCP_SERVER_NOT_FOUND = (40002, "MCP server not found")
     SKILL_PRESET_NOT_FOUND = (40003, "Skill preset not found")
     SKILL_DOWNLOAD_FAILED = (40004, "Skill download failed")
 

@@ -7,7 +7,7 @@ from app.core.errors.exceptions import AppException
 from app.services.backend_client import BackendClient
 
 
-_ENV_PATTERN = re.compile(r"\$\{env:([^}]+)\}")
+_ENV_PATTERN = re.compile(r"\$\{([^}]+)\}")
 
 
 def _resolve_env_value(value: Any, env_map: dict[str, str]) -> Any:
@@ -16,13 +16,26 @@ def _resolve_env_value(value: Any, env_map: dict[str, str]) -> Any:
         if not matches:
             return value
         resolved = value
-        for var in matches:
-            if var not in env_map:
+        for token in matches:
+            if token.startswith("env:"):
+                var = token[4:]
+                default = None
+            else:
+                parts = token.split(":-", 1)
+                var = parts[0]
+                default = parts[1] if len(parts) > 1 else None
+
+            if var in env_map:
+                value_str = env_map[var]
+            elif default is not None:
+                value_str = default
+            else:
                 raise AppException(
                     error_code=ErrorCode.ENV_VAR_NOT_FOUND,
                     message=f"Env var not found: {var}",
                 )
-            resolved = resolved.replace(f"${{env:{var}}}", env_map[var])
+
+            resolved = resolved.replace(f"${{{token}}}", value_str)
         return resolved
     if isinstance(value, list):
         return [_resolve_env_value(v, env_map) for v in value]
@@ -35,7 +48,6 @@ class ConfigResolver:
     def __init__(self, backend_client: BackendClient | None = None) -> None:
         self.backend_client = backend_client or BackendClient()
         self._cache_until: datetime | None = None
-        self._mcp_presets: dict[str, dict] = {}
         self._skill_presets: dict[str, dict] = {}
 
     async def resolve(self, user_id: str, config_snapshot: dict) -> dict:
@@ -60,11 +72,9 @@ class ConfigResolver:
         now = datetime.now(timezone.utc)
         if self._cache_until and now < self._cache_until:
             return
-        mcp_presets = await self.backend_client.list_mcp_presets(include_inactive=True)
         skill_presets = await self.backend_client.list_skill_presets(
             include_inactive=True
         )
-        self._mcp_presets = {p["name"]: p for p in mcp_presets}
         self._skill_presets = {p["name"]: p for p in skill_presets}
         self._cache_until = now + timedelta(seconds=60)
 
@@ -77,25 +87,7 @@ class ConfigResolver:
             if not isinstance(config, dict):
                 resolved[name] = config
                 continue
-            if config.get("enabled") is False or config.get("disabled") is True:
-                continue
-            ref = config.get("$ref")
-            if ref:
-                preset_name = ref.split(":", 1)[-1]
-                preset = self._mcp_presets.get(preset_name)
-                if not preset or not preset.get("is_active", True):
-                    raise AppException(
-                        error_code=ErrorCode.MCP_PRESET_NOT_FOUND,
-                        message=f"MCP preset not found: {preset_name}",
-                    )
-                base: dict = {"transport": preset.get("transport")}
-                default_config = preset.get("default_config") or {}
-                base.update(default_config)
-                override = {k: v for k, v in config.items() if k != "$ref"}
-                base.update(override)
-                resolved[name] = _resolve_env_value(base, env_map)
-            else:
-                resolved[name] = _resolve_env_value(config, env_map)
+            resolved[name] = _resolve_env_value(config, env_map)
         return resolved
 
     def _resolve_skills(self, skills: dict, env_map: dict[str, str]) -> dict:

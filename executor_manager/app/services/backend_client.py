@@ -96,16 +96,6 @@ class BackendClient:
             data = response.json()
             return data.get("data", {}) or {}
 
-    async def list_mcp_presets(self, include_inactive: bool = False) -> list[dict]:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{self.base_url}/api/v1/mcp-presets",
-                params={"include_inactive": str(include_inactive).lower()},
-            )
-            response.raise_for_status()
-            data = response.json()
-            return data.get("data", [])
-
     async def list_skill_presets(self, include_inactive: bool = False) -> list[dict]:
         async with httpx.AsyncClient() as client:
             response = await client.get(
