@@ -9,22 +9,97 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { SkillUse, McpStatusItem } from "@/features/chat/types";
+import { mcpService } from "@/features/mcp/services/mcp-service";
+import { skillsService } from "@/features/skills/services/skills-service";
+import type { McpServer } from "@/features/mcp/types";
+import type { Skill } from "@/features/skills/types";
+import type {
+  SkillUse,
+  McpStatusItem,
+  ConfigSnapshot,
+} from "@/features/chat/types";
 
 interface StatusBarProps {
+  // Runtime execution data (deprecated, now using configSnapshot)
   skills?: SkillUse[];
   mcpStatuses?: McpStatusItem[];
+  // Configuration snapshot from session creation
+  configSnapshot?: ConfigSnapshot | null;
 }
 
-export function StatusBar({ skills = [], mcpStatuses = [] }: StatusBarProps) {
-  const hasSkills = skills.length > 0;
-  const hasMcp = mcpStatuses.length > 0;
+export function StatusBar({
+  skills = [],
+  mcpStatuses = [],
+  configSnapshot,
+}: StatusBarProps) {
+  const [mcpServers, setMcpServers] = React.useState<McpServer[]>([]);
+  const [allSkills, setAllSkills] = React.useState<Skill[]>([]);
+
+  // Load MCP servers and skills on mount
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [serversData, skillsData] = await Promise.all([
+          mcpService.listServers(),
+          skillsService.listSkills(),
+        ]);
+        setMcpServers(serversData);
+        setAllSkills(skillsData);
+      } catch (error) {
+        console.error("[StatusBar] Failed to load config data:", error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Find MCP servers by IDs from config snapshot
+  const configuredMcpServers = React.useMemo(() => {
+    const mcpServerIds = configSnapshot?.mcp_server_ids ?? [];
+    return mcpServerIds
+      .map((id) => mcpServers.find((server) => server.id === id))
+      .filter((server): server is McpServer => server !== undefined);
+  }, [configSnapshot?.mcp_server_ids, mcpServers]);
+
+  // Find skills by IDs from config snapshot
+  const configuredSkills = React.useMemo(() => {
+    const skillIds = configSnapshot?.skill_ids ?? [];
+    return skillIds
+      .map((id) => allSkills.find((skill) => skill.id === id))
+      .filter((skill): skill is Skill => skill !== undefined);
+  }, [configSnapshot?.skill_ids, allSkills]);
+
+  // Prefer config snapshot data, fallback to runtime data
+  const hasSkills = configuredSkills.length > 0 || skills.length > 0;
+  const hasMcp = configuredMcpServers.length > 0 || mcpStatuses.length > 0;
 
   if (!hasSkills && !hasMcp) {
     return null;
   }
 
+  // Display skills from config snapshot (preferred) or runtime data
+  const displaySkills =
+    configuredSkills.length > 0
+      ? configuredSkills.map((skill) => ({
+          id: String(skill.id),
+          name: skill.name,
+          status: "configured" as const,
+        }))
+      : skills;
+
+  // Display MCP servers from config snapshot (preferred) or runtime data
+  const displayMcpServers =
+    configuredMcpServers.length > 0
+      ? configuredMcpServers.map((server) => ({
+          server_name: server.name,
+          status: "configured" as const,
+        }))
+      : mcpStatuses;
+
   const getSkillStatusIcon = (status: string) => {
+    if (status === "configured") {
+      return <CheckCircle2 className="size-3 text-foreground" />;
+    }
     switch (status) {
       case "completed":
         return <CheckCircle2 className="size-3 text-foreground" />;
@@ -36,6 +111,9 @@ export function StatusBar({ skills = [], mcpStatuses = [] }: StatusBarProps) {
   };
 
   const getMcpStatusIcon = (status: string) => {
+    if (status === "configured") {
+      return <CheckCircle2 className="size-3 text-foreground" />;
+    }
     switch (status) {
       case "connected":
         return <CheckCircle2 className="size-3 text-foreground" />;
@@ -56,13 +134,13 @@ export function StatusBar({ skills = [], mcpStatuses = [] }: StatusBarProps) {
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border/60 hover:border-border hover:shadow-sm transition-all cursor-pointer group">
                 <Zap className="size-3.5 text-foreground group-hover:text-foreground/80 transition-colors" />
                 <span className="text-xs font-medium text-foreground">
-                  技能使用
+                  {configuredSkills.length > 0 ? "技能配置" : "技能使用"}
                 </span>
                 <Badge
                   variant="secondary"
                   className="text-xs h-5 px-1.5 bg-muted text-foreground"
                 >
-                  {skills.length}
+                  {displaySkills.length}
                 </Badge>
               </div>
             </TooltipTrigger>
@@ -72,7 +150,7 @@ export function StatusBar({ skills = [], mcpStatuses = [] }: StatusBarProps) {
               sideOffset={8}
             >
               <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
-                {skills.map((skill) => (
+                {displaySkills.map((skill) => (
                   <div
                     key={skill.id}
                     className="flex items-center gap-2 text-sm px-1"
@@ -93,13 +171,15 @@ export function StatusBar({ skills = [], mcpStatuses = [] }: StatusBarProps) {
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border/60 hover:border-border hover:shadow-sm transition-all cursor-pointer group">
                 <Server className="size-3.5 text-foreground group-hover:text-foreground/80 transition-colors" />
                 <span className="text-xs font-medium text-foreground">
-                  MCP 服务器
+                  {configuredMcpServers.length > 0
+                    ? "MCP 服务器配置"
+                    : "MCP 服务器"}
                 </span>
                 <Badge
                   variant="secondary"
                   className="text-xs h-5 px-1.5 bg-muted text-foreground"
                 >
-                  {mcpStatuses.length}
+                  {displayMcpServers.length}
                 </Badge>
               </div>
             </TooltipTrigger>
@@ -109,7 +189,7 @@ export function StatusBar({ skills = [], mcpStatuses = [] }: StatusBarProps) {
               sideOffset={8}
             >
               <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
-                {mcpStatuses.map((mcp, index) => (
+                {displayMcpServers.map((mcp, index) => (
                   <div
                     key={index}
                     className="flex items-center gap-2 text-sm px-1"

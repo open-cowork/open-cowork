@@ -43,6 +43,15 @@ export interface NewMessage {
 }
 
 /**
+ * Configuration snapshot from session creation
+ * Contains the IDs of MCP servers and skills used in this session
+ */
+export interface ConfigSnapshot {
+  mcp_server_ids?: number[];
+  skill_ids?: number[];
+}
+
+/**
  * Frontend StatePatch extends API StatePatch with UI-specific fields
  */
 export interface StatePatch extends ApiStatePatch {
@@ -61,6 +70,7 @@ export interface ExecutionSession {
   progress: number;
   new_message?: NewMessage;
   state_patch: StatePatch;
+  config_snapshot?: ConfigSnapshot | null;
   task_name?: string;
   user_prompt?: string;
 }

@@ -104,6 +104,13 @@ export function ChatPanel({
 
   // Condition checks for UI sections
   const hasTodos = statePatch?.todos && statePatch.todos.length > 0;
+  // Check for config snapshot or runtime data
+  const hasConfigSnapshot =
+    session?.config_snapshot &&
+    ((session.config_snapshot.mcp_server_ids &&
+      session.config_snapshot.mcp_server_ids.length > 0) ||
+      (session.config_snapshot.skill_ids &&
+        session.config_snapshot.skill_ids.length > 0));
   const hasSkills =
     statePatch?.skills_used && statePatch.skills_used.length > 0;
   const hasMcp = statePatch?.mcp_status && statePatch.mcp_status.length > 0;
@@ -148,8 +155,9 @@ export function ChatPanel({
       </div>
 
       {/* Status Bar - Skills and MCP */}
-      {(hasSkills || hasMcp) && (
+      {(hasConfigSnapshot || hasSkills || hasMcp) && (
         <StatusBar
+          configSnapshot={session?.config_snapshot}
           skills={statePatch?.skills_used}
           mcpStatuses={statePatch?.mcp_status}
         />

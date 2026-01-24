@@ -14,6 +14,7 @@ import type {
   TaskEnqueueResponse,
   TaskConfig,
   InputFile,
+  ConfigSnapshot,
 } from "@/features/chat/types";
 
 interface MessageContentBlock {
@@ -45,6 +46,28 @@ function cleanText(text: string): string {
   return text.replace(/\uFFFD/g, "");
 }
 
+/**
+ * Parse config_snapshot from API response to ConfigSnapshot type
+ */
+function parseConfigSnapshot(
+  configSnapshot: Record<string, unknown> | null,
+): ConfigSnapshot | null {
+  if (!configSnapshot) return null;
+
+  return {
+    mcp_server_ids: Array.isArray(configSnapshot.mcp_server_ids)
+      ? (configSnapshot.mcp_server_ids as number[]).filter(
+          (id): id is number => typeof id === "number",
+        )
+      : undefined,
+    skill_ids: Array.isArray(configSnapshot.skill_ids)
+      ? (configSnapshot.skill_ids as number[]).filter(
+          (id): id is number => typeof id === "number",
+        )
+      : undefined,
+  };
+}
+
 function toExecutionSession(
   session: SessionResponse,
   progress: number = 0,
@@ -62,6 +85,7 @@ function toExecutionSession(
             : "accepted",
     progress,
     state_patch: session.state_patch ?? {},
+    config_snapshot: parseConfigSnapshot(session.config_snapshot),
     task_name: undefined,
     user_prompt: undefined,
   };
