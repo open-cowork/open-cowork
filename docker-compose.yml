@@ -50,10 +50,10 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        until mc alias set rustfs http://rustfs:9000 "$S3_ACCESS_KEY" "$S3_SECRET_KEY"; do
+        until mc alias set rustfs http://rustfs:9000 "$$S3_ACCESS_KEY" "$$S3_SECRET_KEY"; do
           sleep 2
         done
-        mc mb -p "rustfs/$S3_BUCKET" || true
+        mc mb -p "rustfs/$$S3_BUCKET" || true
 
   backend:
     # Default to pulling from GHCR; override via BACKEND_IMAGE if needed.
@@ -70,7 +70,7 @@ services:
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
 
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-poco}
-      CORS_ORIGINS: ${CORS_ORIGINS:-'["http://localhost:3000","http://127.0.0.1:3000"]'}
+      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000","http://127.0.0.1:3000"]}
       SECRET_KEY: ${BACKEND_SECRET_KEY:-change-this-secret-key-in-production}
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN:-change-this-token-in-production}
       EXECUTOR_MANAGER_URL: http://executor-manager:8001
@@ -127,7 +127,7 @@ services:
       EXECUTOR_PUBLISHED_HOST: ${EXECUTOR_PUBLISHED_HOST:-host.docker.internal}
 
       # IMPORTANT: must be a host path (bind mount) accessible by the Docker daemon.
-      WORKSPACE_ROOT: ${PWD}/tmp_workspace
+      WORKSPACE_ROOT: /tmp_workspace
 
       MAX_CONCURRENT_TASKS: ${MAX_CONCURRENT_TASKS:-5}
       TASK_PULL_ENABLED: ${TASK_PULL_ENABLED:-true}
@@ -157,7 +157,7 @@ services:
       - "${DOCKER_GID:-0}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./tmp_workspace:${PWD}/tmp_workspace
+      - ./tmp_workspace:/tmp_workspace
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
