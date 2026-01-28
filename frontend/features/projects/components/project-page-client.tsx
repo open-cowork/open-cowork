@@ -8,6 +8,7 @@ import { useT } from "@/lib/i18n/client";
 import { useAutosizeTextarea } from "@/features/home/hooks/use-autosize-textarea";
 import { createSessionAction } from "@/features/chat/actions/session-actions";
 import type { ProjectItem, TaskHistoryItem } from "@/features/projects/types";
+import type { ComposerMode } from "@/features/home/components/task-composer";
 
 import { ProjectHeader } from "@/features/projects/components/project-header";
 import { KeyboardHints } from "@/features/home/components/keyboard-hints";
@@ -17,6 +18,9 @@ import {
   type TaskSendOptions,
 } from "@/features/home/components/task-composer";
 import { useAppShell } from "@/components/shared/app-shell-context";
+import { scheduledTasksService } from "@/features/scheduled-tasks/services/scheduled-tasks-service";
+import { toast } from "sonner";
+import type { TaskConfig } from "@/features/chat/types/api/session";
 
 interface ProjectPageClientProps {
   projectId: string;
@@ -35,6 +39,7 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
 
   const [inputValue, setInputValue] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [mode, setMode] = React.useState<ComposerMode>("task");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   useAutosizeTextarea(textareaRef, inputValue);
@@ -46,25 +51,63 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
   const handleSendTask = React.useCallback(
     async (options?: TaskSendOptions) => {
       const inputFiles = options?.attachments ?? [];
+      const repoUrl = (options?.repo_url || "").trim();
+      const gitBranch = (options?.git_branch || "").trim() || "main";
+      const scheduledTask = options?.scheduled_task ?? null;
       if (
-        (inputValue.trim() === "" && inputFiles.length === 0) ||
+        (mode === "scheduled"
+          ? inputValue.trim() === ""
+          : inputValue.trim() === "" && inputFiles.length === 0) ||
         isSubmitting
       ) {
         return;
       }
 
       setIsSubmitting(true);
-      console.log("[Project] Sending task:", inputValue);
+      console.log("[Project] Sending task:", inputValue, { mode });
 
       try {
-        // Build config object
-        const config: Record<string, unknown> = {};
+        const config: TaskConfig & Record<string, unknown> = {};
         if (inputFiles.length > 0) {
           config.input_files = inputFiles;
         }
+        if (repoUrl) {
+          config.repo_url = repoUrl;
+          config.git_branch = gitBranch;
+        }
+
+        if (mode === "scheduled") {
+          const name =
+            (scheduledTask?.name || "").trim() ||
+            inputValue.trim().slice(0, 32);
+          const cron = (scheduledTask?.cron || "").trim() || "*/5 * * * *";
+          const timezone = (scheduledTask?.timezone || "").trim() || "UTC";
+          const enabled = Boolean(scheduledTask?.enabled ?? true);
+          const reuseSession = Boolean(scheduledTask?.reuse_session ?? true);
+
+          await scheduledTasksService.create({
+            name,
+            cron,
+            timezone,
+            prompt: inputValue,
+            enabled,
+            reuse_session: reuseSession,
+            project_id: projectId,
+            config: Object.keys(config).length > 0 ? config : undefined,
+          });
+          toast.success(t("library.scheduledTasks.toasts.created"));
+          setInputValue("");
+          router.push(`/${lng}/capabilities/scheduled-tasks`);
+          return;
+        }
+
+        const finalPrompt =
+          mode === "plan"
+            ? t("hero.modes.planPrefix", { prompt: inputValue })
+            : inputValue;
 
         const session = await createSessionAction({
-          prompt: inputValue,
+          prompt: finalPrompt,
           projectId,
           config: Object.keys(config).length > 0 ? config : undefined,
         });
@@ -88,7 +131,7 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
         setIsSubmitting(false);
       }
     },
-    [addTask, inputValue, isSubmitting, lng, projectId, router],
+    [addTask, inputValue, isSubmitting, lng, mode, projectId, router, t],
   );
 
   const handleQuickActionPick = React.useCallback(
@@ -143,6 +186,8 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
             textareaRef={textareaRef}
             value={inputValue}
             onChange={setInputValue}
+            mode={mode}
+            onModeChange={setMode}
             onSend={handleSendTask}
             isSubmitting={isSubmitting}
           />

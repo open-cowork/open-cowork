@@ -43,6 +43,24 @@
     "connect": "连接",
     "configure": "配置",
     "comingSoon": "即将推出",
+    "modes": {
+      "task": "任务",
+      "taskHelp": "一次性执行，适合大多数问题。",
+      "plan": "分步执行",
+      "planHelp": "先生成可执行计划，确认后再按步骤执行（适合复杂问题）。",
+      "scheduled": "定时任务",
+      "scheduledHelp": "按 Cron 自动触发执行，可复用工作区。",
+      "planPlaceholder": "描述一个复杂任务，我会先输出执行计划，等你确认后再开始执行…",
+      "planPrefix": "请先输出一个清晰可执行的计划（分步骤、带检查点），不要直接执行。等我确认后，再按步骤执行。\\n\\n任务：{{prompt}}"
+    },
+    "repo": {
+      "toggle": "仓库设置",
+      "dialogTitle": "仓库设置",
+      "urlLabel": "GitHub 链接",
+      "urlPlaceholder": "例如：https://github.com/org/repo",
+      "branchLabel": "分支",
+      "branchPlaceholder": "例如：main"
+    },
     "toasts": {
       "uploadSuccess": "文件上传成功",
       "uploadFailed": "文件上传失败",
@@ -282,7 +300,38 @@
       "feature1": "Cron 表达式支持",
       "feature2": "任务历史追踪",
       "feature3": "失败重试机制",
-      "action": "创建任务"
+      "action": "创建任务",
+      "page": {
+        "title": "定时任务",
+        "create": "创建任务",
+        "createTitle": "创建定时任务",
+        "trigger": "立即执行",
+        "empty": "暂无定时任务"
+      },
+      "fields": {
+        "name": "名称",
+        "cron": "Cron 表达式",
+        "timezone": "时区",
+        "prompt": "任务内容",
+        "enabled": "启用",
+        "enabledHelp": "关闭后不会自动触发，但仍可手动执行。",
+        "reuseSession": "复用会话/工作区",
+        "reuseSessionHelp": "开启后会复用同一个工作区，生成的文件会持续保留。",
+        "nextRunAt": "下次执行时间",
+        "lastStatus": "最近状态",
+        "actions": "操作"
+      },
+      "placeholders": {
+        "name": "例如：每日构建",
+        "prompt": "输入定时任务要执行的内容..."
+      },
+      "toasts": {
+        "created": "定时任务已创建",
+        "updated": "定时任务已更新",
+        "deleted": "定时任务已删除",
+        "triggered": "已触发执行",
+        "error": "操作失败，请稍后重试"
+      }
     },
     "more": {
       "title": "更多",
@@ -484,6 +533,7 @@
   },
   "common": {
     "cancel": "取消",
+    "create": "创建",
     "delete": "删除",
     "save": "保存"
   }

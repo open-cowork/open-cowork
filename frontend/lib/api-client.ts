@@ -62,6 +62,13 @@ export const API_ENDPOINTS = {
   // Schedules
   schedules: "/schedules",
 
+  // Scheduled Tasks
+  scheduledTasks: "/scheduled-tasks",
+  scheduledTask: (taskId: string) => `/scheduled-tasks/${taskId}`,
+  scheduledTaskTrigger: (taskId: string) =>
+    `/scheduled-tasks/${taskId}/trigger`,
+  scheduledTaskRuns: (taskId: string) => `/scheduled-tasks/${taskId}/runs`,
+
   // Messages
   message: (messageId: number) => `/messages/${messageId}`,
 

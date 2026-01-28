@@ -88,8 +88,7 @@ export function CapabilitiesGrid() {
         ],
         actionLabel: t("library.scheduledTasks.action"),
         actionHref: "/capabilities/scheduled-tasks",
-        badge: t("library.comingSoon"),
-        comingSoon: true,
+        comingSoon: false,
       },
       {
         id: "more",

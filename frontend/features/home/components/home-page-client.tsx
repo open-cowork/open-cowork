@@ -11,9 +11,12 @@ import { HomeHeader } from "./home-header";
 import { TaskComposer } from "./task-composer";
 import { ConnectorsBar } from "./connectors-bar";
 import { createSessionAction } from "@/features/chat/actions/session-actions";
-import type { TaskSendOptions } from "./task-composer";
+import type { ComposerMode, TaskSendOptions } from "./task-composer";
 
 import { useAppShell } from "@/components/shared/app-shell-context";
+import { scheduledTasksService } from "@/features/scheduled-tasks/services/scheduled-tasks-service";
+import { toast } from "sonner";
+import type { TaskConfig } from "@/features/chat/types/api/session";
 
 export function HomePageClient() {
   const { t } = useT("translation");
@@ -23,6 +26,7 @@ export function HomePageClient() {
   const [inputValue, setInputValue] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isInputFocused, setIsInputFocused] = React.useState(false);
+  const [mode, setMode] = React.useState<ComposerMode>("task");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   useAutosizeTextarea(textareaRef, inputValue);
@@ -33,26 +37,66 @@ export function HomePageClient() {
   const handleSendTask = React.useCallback(
     async (options?: TaskSendOptions) => {
       const inputFiles = options?.attachments ?? [];
+      const repoUrl = (options?.repo_url || "").trim();
+      const gitBranch = (options?.git_branch || "").trim() || "main";
+      const scheduledTask = options?.scheduled_task ?? null;
       if (
-        (inputValue.trim() === "" && inputFiles.length === 0) ||
+        (mode === "scheduled"
+          ? inputValue.trim() === ""
+          : inputValue.trim() === "" && inputFiles.length === 0) ||
         isSubmitting
       ) {
         return;
       }
 
       setIsSubmitting(true);
-      console.log("[Home] Sending task:", inputValue);
+      console.log("[Home] Sending task:", inputValue, { mode });
 
       try {
-        // Build config object
-        const config: Record<string, unknown> = {};
+        // Build config object (shared by plan/task, and also used to pin scheduled task config)
+        const config: TaskConfig & Record<string, unknown> = {};
         if (inputFiles.length > 0) {
           config.input_files = inputFiles;
         }
+        if (repoUrl) {
+          config.repo_url = repoUrl;
+          config.git_branch = gitBranch;
+        }
+
+        if (mode === "scheduled") {
+          const name =
+            (scheduledTask?.name || "").trim() ||
+            inputValue.trim().slice(0, 32);
+          const cron = (scheduledTask?.cron || "").trim() || "*/5 * * * *";
+          const timezone = (scheduledTask?.timezone || "").trim() || "UTC";
+          const enabled = Boolean(scheduledTask?.enabled ?? true);
+          const reuseSession = Boolean(scheduledTask?.reuse_session ?? true);
+
+          await scheduledTasksService.create({
+            name,
+            cron,
+            timezone,
+            prompt: inputValue,
+            enabled,
+            reuse_session: reuseSession,
+            config: Object.keys(config).length > 0 ? config : undefined,
+          });
+
+          toast.success(t("library.scheduledTasks.toasts.created"));
+          setInputValue("");
+          // Navigate to manage page after creation
+          router.push(`/${lng}/capabilities/scheduled-tasks`);
+          return;
+        }
+
+        const finalPrompt =
+          mode === "plan"
+            ? t("hero.modes.planPrefix", { prompt: inputValue })
+            : inputValue;
 
         // 1. Call create session API
         const session = await createSessionAction({
-          prompt: inputValue,
+          prompt: finalPrompt,
           config: Object.keys(config).length > 0 ? config : undefined,
         });
         console.log("session", session);
@@ -80,7 +124,7 @@ export function HomePageClient() {
         setIsSubmitting(false);
       }
     },
-    [addTask, inputValue, isSubmitting, lng, router],
+    [addTask, inputValue, isSubmitting, lng, mode, router, t],
   );
 
   return (
@@ -100,13 +144,17 @@ export function HomePageClient() {
             textareaRef={textareaRef}
             value={inputValue}
             onChange={setInputValue}
+            mode={mode}
+            onModeChange={setMode}
             onSend={handleSendTask}
             isSubmitting={isSubmitting}
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setIsInputFocused(false)}
           />
 
-          <ConnectorsBar forceExpanded={shouldExpandConnectors} />
+          <ConnectorsBar
+            forceExpanded={shouldExpandConnectors && mode !== "scheduled"}
+          />
         </div>
       </div>
     </>

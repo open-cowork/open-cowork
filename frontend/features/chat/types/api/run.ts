@@ -29,6 +29,7 @@ export interface RunResponse {
   status: string;
   progress: number;
   schedule_mode: string;
+  scheduled_task_id?: string | null;
   scheduled_at: string; // ISO datetime
   claimed_by: string | null;
   lease_expires_at: string | null;

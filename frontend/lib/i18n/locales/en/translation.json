@@ -43,6 +43,24 @@
     "connect": "Connect",
     "configure": "Configure",
     "comingSoon": "Coming soon",
+    "modes": {
+      "task": "Task",
+      "taskHelp": "Run once immediately. Good for most problems.",
+      "plan": "Step-by-step",
+      "planHelp": "Propose an execution plan first, then execute step by step after confirmation.",
+      "scheduled": "Scheduled",
+      "scheduledHelp": "Run on a Cron schedule and optionally reuse the workspace.",
+      "planPlaceholder": "Describe a complex task. I will propose a plan first, then execute after you confirm…",
+      "planPrefix": "First, propose a clear execution plan (steps with checkpoints). Do not execute yet. After I confirm, execute step by step.\\n\\nTask: {{prompt}}"
+    },
+    "repo": {
+      "toggle": "Repository settings",
+      "dialogTitle": "Repository settings",
+      "urlLabel": "GitHub URL",
+      "urlPlaceholder": "e.g. https://github.com/org/repo",
+      "branchLabel": "Branch",
+      "branchPlaceholder": "e.g. main"
+    },
     "toasts": {
       "uploadSuccess": "File uploaded successfully",
       "uploadFailed": "File upload failed",
@@ -282,7 +300,38 @@
       "feature1": "Cron expression support",
       "feature2": "Task history tracking",
       "feature3": "Failure retry mechanism",
-      "action": "Create Task"
+      "action": "Create Task",
+      "page": {
+        "title": "Scheduled Tasks",
+        "create": "Create Task",
+        "createTitle": "Create Scheduled Task",
+        "trigger": "Run Now",
+        "empty": "No scheduled tasks yet"
+      },
+      "fields": {
+        "name": "Name",
+        "cron": "Cron Expression",
+        "timezone": "Timezone",
+        "prompt": "Prompt",
+        "enabled": "Enabled",
+        "enabledHelp": "When disabled, it will not auto-run, but can still be triggered manually.",
+        "reuseSession": "Reuse Session/Workspace",
+        "reuseSessionHelp": "When enabled, the same workspace is reused and generated files are preserved.",
+        "nextRunAt": "Next Run",
+        "lastStatus": "Last Status",
+        "actions": "Actions"
+      },
+      "placeholders": {
+        "name": "e.g. Daily build",
+        "prompt": "What should this scheduled task do?"
+      },
+      "toasts": {
+        "created": "Scheduled task created",
+        "updated": "Scheduled task updated",
+        "deleted": "Scheduled task deleted",
+        "triggered": "Triggered",
+        "error": "Operation failed, please try again later"
+      }
     },
     "more": {
       "title": "More",
@@ -484,6 +533,7 @@
   },
   "common": {
     "cancel": "Cancel",
+    "create": "Create",
     "delete": "Delete",
     "save": "Save"
   }
