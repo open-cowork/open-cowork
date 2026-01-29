@@ -9,6 +9,7 @@ from app.models.mcp_server import McpServer
 from app.models.project import Project
 from app.models.skill import Skill
 from app.models.skill_import_job import SkillImportJob
+from app.models.slash_command import SlashCommand
 from app.models.tool_execution import ToolExecution
 from app.models.usage_log import UsageLog
 from app.models.user_mcp_install import UserMcpInstall
@@ -27,6 +28,7 @@ __all__ = [
     "Project",
     "Skill",
     "SkillImportJob",
+    "SlashCommand",
     "ToolExecution",
     "UsageLog",
     "UserMcpInstall",

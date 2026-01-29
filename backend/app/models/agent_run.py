@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from app.models.agent_message import AgentMessage
     from app.models.agent_scheduled_task import AgentScheduledTask
     from app.models.agent_session import AgentSession
+    from app.models.usage_log import UsageLog
 
 
 class AgentRun(Base, TimestampMixin):
@@ -80,4 +81,7 @@ class AgentRun(Base, TimestampMixin):
     user_message: Mapped["AgentMessage"] = relationship(foreign_keys=[user_message_id])
     scheduled_task: Mapped[Optional["AgentScheduledTask"]] = relationship(
         back_populates="runs"
+    )
+    usage_logs: Mapped[list["UsageLog"]] = relationship(
+        back_populates="run", cascade="all, delete-orphan"
     )

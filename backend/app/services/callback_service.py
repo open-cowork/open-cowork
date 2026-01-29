@@ -198,9 +198,18 @@ class CallbackService:
         total_cost_usd = message.get("total_cost_usd")
         duration_ms = message.get("duration_ms")
 
+        db_run = (
+            db.query(AgentRun)
+            .filter(AgentRun.session_id == session_id)
+            .filter(AgentRun.status.in_(["claimed", "running"]))
+            .order_by(AgentRun.created_at.desc())
+            .first()
+        )
+
         UsageLogRepository.create(
             session_db=db,
             session_id=session_id,
+            run_id=db_run.id if db_run else None,
             total_cost_usd=total_cost_usd,
             duration_ms=duration_ms,
             usage_json=usage_data,
@@ -214,6 +223,7 @@ class CallbackService:
             "usage_log_persisted",
             extra={
                 "session_id": str(session_id),
+                "run_id": str(db_run.id) if db_run else None,
                 "cost_usd": total_cost_usd,
                 "input_tokens": input_tokens,
                 "output_tokens": output_tokens,

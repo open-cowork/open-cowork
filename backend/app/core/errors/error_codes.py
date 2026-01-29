@@ -21,6 +21,8 @@ class ErrorCode(Enum):
     SKILL_ALREADY_EXISTS = (13002, "Skill already exists")
     SKILL_MODIFY_FORBIDDEN = (13003, "Skill modification forbidden")
     PROJECT_NOT_FOUND = (14001, "Project not found")
+    SLASH_COMMAND_NOT_FOUND = (15001, "Slash command not found")
+    SLASH_COMMAND_ALREADY_EXISTS = (15002, "Slash command already exists")
 
     INTERNAL_ERROR = (50000, "Internal server error")
     DATABASE_ERROR = (50101, "Database operation failed")

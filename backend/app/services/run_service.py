@@ -16,6 +16,9 @@ from app.schemas.run import (
     RunResponse,
     RunStartRequest,
 )
+from app.services.usage_service import UsageService
+
+usage_service = UsageService()
 
 
 class RunService:
@@ -67,7 +70,9 @@ class RunService:
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"Run not found: {run_id}",
             )
-        return RunResponse.model_validate(db_run)
+        run = RunResponse.model_validate(db_run)
+        run.usage = usage_service.get_usage_summary_by_run(db, run_id)
+        return run
 
     def list_runs(
         self,
@@ -77,7 +82,13 @@ class RunService:
         offset: int = 0,
     ) -> list[RunResponse]:
         runs = RunRepository.list_by_session(db, session_id, limit=limit, offset=offset)
-        return [RunResponse.model_validate(r) for r in runs]
+        responses = [RunResponse.model_validate(r) for r in runs]
+        usage_by_run_id = usage_service.get_usage_summaries_by_run_ids(
+            db, [r.id for r in runs]
+        )
+        for item in responses:
+            item.usage = usage_by_run_id.get(item.run_id)
+        return responses
 
     def claim_next_run(
         self, db: Session, request: RunClaimRequest

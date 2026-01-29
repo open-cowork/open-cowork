@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.usage import UsageResponse
+
 
 class RunStatus(str, Enum):
     """Run status enum."""
@@ -36,6 +38,7 @@ class RunResponse(BaseModel):
     finished_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    usage: UsageResponse | None = None
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 

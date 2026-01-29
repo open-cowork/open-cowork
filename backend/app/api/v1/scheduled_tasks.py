@@ -16,12 +16,14 @@ from app.schemas.scheduled_task import (
 from app.services.scheduled_task_service import ScheduledTaskService
 from app.repositories.run_repository import RunRepository
 from app.repositories.scheduled_task_repository import ScheduledTaskRepository
+from app.services.usage_service import UsageService
 from app.core.errors.error_codes import ErrorCode
 from app.core.errors.exceptions import AppException
 
 router = APIRouter(prefix="/scheduled-tasks", tags=["scheduled-tasks"])
 
 scheduled_task_service = ScheduledTaskService()
+usage_service = UsageService()
 
 
 @router.post("", response_model=ResponseSchema[ScheduledTaskResponse])
@@ -108,7 +110,15 @@ async def list_scheduled_task_runs(
             message="Scheduled task does not belong to the user",
         )
     runs = RunRepository.list_by_scheduled_task(db, task_id, limit=limit, offset=offset)
+    usage_by_run_id = usage_service.get_usage_summaries_by_run_ids(
+        db, [r.id for r in runs]
+    )
     return Response.success(
-        data=[RunResponse.model_validate(r) for r in runs],
+        data=[
+            RunResponse.model_validate(r).model_copy(
+                update={"usage": usage_by_run_id.get(r.id)}
+            )
+            for r in runs
+        ],
         message="Scheduled task runs retrieved",
     )

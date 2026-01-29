@@ -13,18 +13,8 @@ logger = logging.getLogger(__name__)
 class UsageService:
     """Service layer for usage statistics."""
 
-    def get_usage_summary(self, db: Session, session_id: uuid.UUID) -> UsageResponse:
-        """Gets aggregated usage statistics for a session.
-
-        Args:
-            db: Database session
-            session_id: Session ID
-
-        Returns:
-            Aggregated usage statistics
-        """
-        logs = UsageLogRepository.list_by_session(db, session_id)
-
+    @staticmethod
+    def _aggregate_logs(logs) -> UsageResponse:
         if not logs:
             return UsageResponse(
                 total_cost_usd=None,
@@ -54,14 +44,54 @@ class UsageService:
                         # For non-numeric fields, keep the last value
                         aggregated_usage[key] = value
 
-        logger.debug(
-            f"Retrieved usage summary for session {session_id}: "
-            f"cost=${total_cost_usd:.6f}, "
-            f"duration={total_duration_ms}ms"
-        )
-
         return UsageResponse(
             total_cost_usd=total_cost_usd,
             total_duration_ms=total_duration_ms,
             usage_json=aggregated_usage if aggregated_usage else None,
         )
+
+    def get_usage_summary(self, db: Session, session_id: uuid.UUID) -> UsageResponse:
+        """Gets aggregated usage statistics for a session.
+
+        Args:
+            db: Database session
+            session_id: Session ID
+
+        Returns:
+            Aggregated usage statistics
+        """
+        logs = UsageLogRepository.list_by_session(db, session_id)
+
+        usage = self._aggregate_logs(logs)
+
+        if usage.total_cost_usd is not None or usage.total_duration_ms is not None:
+            logger.debug(
+                f"Retrieved usage summary for session {session_id}: "
+                f"cost=${(usage.total_cost_usd or 0):.6f}, "
+                f"duration={(usage.total_duration_ms or 0)}ms"
+            )
+
+        return usage
+
+    def get_usage_summary_by_run(
+        self, db: Session, run_id: uuid.UUID
+    ) -> UsageResponse | None:
+        logs = UsageLogRepository.list_by_run(db, run_id)
+        if not logs:
+            return None
+        return self._aggregate_logs(logs)
+
+    def get_usage_summaries_by_run_ids(
+        self, db: Session, run_ids: list[uuid.UUID]
+    ) -> dict[uuid.UUID, UsageResponse]:
+        logs = UsageLogRepository.list_by_run_ids(db, run_ids)
+        if not logs:
+            return {}
+
+        by_run: dict[uuid.UUID, list] = {}
+        for log in logs:
+            if log.run_id is None:
+                continue
+            by_run.setdefault(log.run_id, []).append(log)
+
+        return {rid: self._aggregate_logs(items) for rid, items in by_run.items()}
