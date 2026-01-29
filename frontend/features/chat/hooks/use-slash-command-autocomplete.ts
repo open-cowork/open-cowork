@@ -52,7 +52,7 @@ function extractToken(value: string): TokenInfo | null {
 type UseSlashCommandAutocompleteParams = {
   value: string;
   onChange: (next: string) => void;
-  textareaRef?: RefObject<HTMLTextAreaElement>;
+  textareaRef?: RefObject<HTMLTextAreaElement | null>;
 };
 
 export function useSlashCommandAutocomplete({
