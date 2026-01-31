@@ -462,8 +462,6 @@ export function MainSidebar({
                 const getIconAnimation = () => {
                   if (isDisabled) return ""; // 禁用状态下不显示动画
                   switch (id) {
-                    case "search":
-                      return "transition-all duration-200 group-hover/menu-item:scale-110 group-hover/menu-item:rotate-[-8deg]";
                     case "capabilities":
                       return "transition-all duration-300 group-hover/menu-item:rotate-12 group-hover/menu-item:scale-110";
                     case "scheduled-tasks":

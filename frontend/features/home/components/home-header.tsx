@@ -10,15 +10,12 @@ import { CreditsPopover } from "./credits-popover";
 import { UserMenu } from "@/features/user/components/user-menu";
 import { RepoLinkButton } from "@/components/shared/repo-link-button";
 
-import { useUserAccount } from "@/features/user/hooks/use-user-account";
-
 interface HomeHeaderProps {
   onOpenSettings?: () => void;
 }
 
 export function HomeHeader({ onOpenSettings }: HomeHeaderProps) {
   const { t } = useT("translation");
-  const { credits, isLoading } = useUserAccount();
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-sm">
@@ -35,7 +32,10 @@ export function HomeHeader({ onOpenSettings }: HomeHeaderProps) {
         </Button>
       </div>
       <div className="flex items-center gap-1">
-        <RepoLinkButton size="sm" className="size-8 rounded-full p-0 flex items-center justify-center" />
+        <RepoLinkButton
+          size="sm"
+          className="size-8 rounded-full p-0 flex items-center justify-center"
+        />
         <CreditsPopover
           trigger={
             <Button

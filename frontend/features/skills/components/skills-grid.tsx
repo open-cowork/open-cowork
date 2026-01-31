@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Trash2, Power, PowerOff, AlertTriangle } from "lucide-react";
+import { Trash2, PowerOff, AlertTriangle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { SkeletonShimmer } from "@/components/ui/skeleton-shimmer";
 import { StaggeredList } from "@/components/ui/staggered-entrance";
 import type { Skill, UserSkillInstall } from "@/features/skills/types";
 import { useT } from "@/lib/i18n/client";
-import { toast } from "sonner";
 
 const SKILL_LIMIT = 5;
 
@@ -103,14 +102,17 @@ export function SkillsGrid({
               const install = installBySkillId.get(skill.id);
               const isInstalled = Boolean(install);
               const isRowLoading =
-                isLoading || loadingId === skill.id || loadingId === install?.id;
+                isLoading ||
+                loadingId === skill.id ||
+                loadingId === install?.id;
 
               return (
                 <div
-                  className={`flex items-center gap-4 rounded-xl border px-4 py-3 min-h-[64px] ${isInstalled
-                    ? "border-border/70 bg-card"
-                    : "border-border/40 bg-muted/20"
-                    }`}
+                  className={`flex items-center gap-4 rounded-xl border px-4 py-3 min-h-[64px] ${
+                    isInstalled
+                      ? "border-border/70 bg-card"
+                      : "border-border/40 bg-muted/20"
+                  }`}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">

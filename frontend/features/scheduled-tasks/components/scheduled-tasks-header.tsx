@@ -4,7 +4,6 @@ import { Clock, Plus } from "lucide-react";
 
 import { useT } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 interface ScheduledTasksHeaderProps {
   onAddClick?: () => void;

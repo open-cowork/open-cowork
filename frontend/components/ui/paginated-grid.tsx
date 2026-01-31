@@ -22,11 +22,7 @@ interface PaginatedGridProps {
   currentPage: number;
   totalPages: number;
   pageSize: number;
-  canGoNext: boolean;
-  canGoPrevious: boolean;
   onPageChange: (page: number) => void;
-  onNextPage: () => void;
-  onPreviousPage: () => void;
   onPageSizeChange: (size: number) => void;
   children: React.ReactNode;
   className?: string;
@@ -37,11 +33,7 @@ export function PaginatedGrid({
   currentPage,
   totalPages,
   pageSize,
-  canGoNext,
-  canGoPrevious,
   onPageChange,
-  onNextPage,
-  onPreviousPage,
   onPageSizeChange,
   children,
   className,
@@ -95,14 +87,6 @@ export function PaginatedGrid({
   }
 
   const pageNumbers = getPageNumbers();
-
-  // Calculate current range
-  const startItem = totalItems
-    ? Math.min((currentPage - 1) * pageSize + 1, totalItems)
-    : null;
-  const endItem = totalItems
-    ? Math.min(currentPage * pageSize, totalItems)
-    : null;
 
   return (
     <div className={cn("flex flex-col space-y-4", className)}>

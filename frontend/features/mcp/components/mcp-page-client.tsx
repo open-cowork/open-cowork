@@ -84,11 +84,7 @@ export function McpPageClient() {
                 currentPage={pagination.currentPage}
                 totalPages={pagination.totalPages}
                 pageSize={pagination.pageSize}
-                canGoNext={pagination.canGoNext}
-                canGoPrevious={pagination.canGoPrevious}
                 onPageChange={pagination.goToPage}
-                onNextPage={pagination.nextPage}
-                onPreviousPage={pagination.previousPage}
                 onPageSizeChange={pagination.setPageSize}
                 totalItems={filteredServers.length}
               >

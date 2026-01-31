@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Settings, Power, PowerOff, AlertTriangle, Trash2 } from "lucide-react";
+import { Settings, PowerOff, AlertTriangle, Trash2 } from "lucide-react";
 
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -100,10 +100,11 @@ export function McpGrid({
 
               return (
                 <div
-                  className={`flex items-center gap-4 rounded-xl border px-4 py-3 min-h-[64px] ${install
-                    ? "border-border/70 bg-card"
-                    : "border-border/40 bg-muted/20"
-                    }`}
+                  className={`flex items-center gap-4 rounded-xl border px-4 py-3 min-h-[64px] ${
+                    install
+                      ? "border-border/70 bg-card"
+                      : "border-border/40 bg-muted/20"
+                  }`}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -130,7 +131,10 @@ export function McpGrid({
                         className="size-8"
                         onClick={() => onUninstall?.(server.id, install.id)}
                         disabled={isRowLoading}
-                        title={t("library.mcpLibrary.actions.uninstall", "卸载")}
+                        title={t(
+                          "library.mcpLibrary.actions.uninstall",
+                          "卸载",
+                        )}
                       >
                         <Trash2 className="size-4" />
                       </Button>

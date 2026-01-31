@@ -15,7 +15,6 @@ export function PullToRefresh({
   onRefresh,
   children,
   threshold = 80,
-  isLoading: externalLoading = false,
 }: PullToRefreshProps) {
   const [, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -108,7 +107,6 @@ export function PullToRefresh({
       onMouseDown={handleTouchStart}
       onTouchStart={handleTouchStart}
     >
-
       <motion.div
         style={{
           height: pullDistanceSpring,
@@ -129,10 +127,11 @@ export function PullToRefresh({
                 ? { repeat: Infinity, duration: 1, ease: "linear" }
                 : { duration: 0.2 }
             }
-            className={`p-2 rounded-full border shadow-sm transition-colors ${isThresholdMet
-              ? "bg-muted text-foreground border-muted-foreground/20"
-              : "bg-background text-muted-foreground border-border"
-              }`}
+            className={`p-2 rounded-full border shadow-sm transition-colors ${
+              isThresholdMet
+                ? "bg-muted text-foreground border-muted-foreground/20"
+                : "bg-background text-muted-foreground border-border"
+            }`}
           >
             {isRefreshing ? (
               <RefreshCw className="size-5" />
@@ -142,8 +141,9 @@ export function PullToRefresh({
           </motion.div>
 
           <span
-            className={`text-xs font-medium transition-colors ${isThresholdMet ? "text-foreground" : "text-muted-foreground"
-              }`}
+            className={`text-xs font-medium transition-colors ${
+              isThresholdMet ? "text-foreground" : "text-muted-foreground"
+            }`}
           >
             {isRefreshing
               ? "正在刷新..."

@@ -14,9 +14,7 @@ import {
   Server,
   Sparkles,
   AppWindow,
-  Loader2,
   ChevronRight,
-  Power,
   PowerOff,
 } from "lucide-react";
 import { mcpService } from "@/features/mcp/services/mcp-service";
@@ -390,8 +388,6 @@ export function CardNav({
     emptyText: string,
     type: "mcp" | "skill",
   ) => {
-    const batchToggleFn = type === "mcp" ? batchToggleMcps : batchToggleSkills;
-
     if (isLoading && !hasFetched) {
       return (
         <div className="flex flex-col gap-1">
@@ -411,9 +407,6 @@ export function CardNav({
     }
 
     const toggleFn = type === "mcp" ? toggleMcpEnabled : toggleSkillEnabled;
-
-    const enabledCount = items.filter((i) => i.enabled).length;
-    const hasEnabledItems = enabledCount > 0;
 
     return (
       <div className="flex flex-col gap-2">
@@ -460,7 +453,7 @@ export function CardNav({
           "relative rounded-xl border border-border bg-card/50 overflow-hidden transition-all duration-[0.4s] ease-[cubic-bezier(0.23,1,0.32,1)] backdrop-blur-md",
           "hover:shadow-[0_12px_40px_-12px_rgba(var(--foreground),0.15)] hover:bg-card/80",
           isExpanded &&
-          "shadow-[0_12px_40px_-12px_rgba(var(--foreground),0.15)] bg-card/80",
+            "shadow-[0_12px_40px_-12px_rgba(var(--foreground),0.15)] bg-card/80",
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -522,7 +515,8 @@ export function CardNav({
                       </TooltipContent>
                     </Tooltip>
                   )}
-                  {installedMcps.filter((i) => i.enabled).length > MCP_LIMIT && (
+                  {installedMcps.filter((i) => i.enabled).length >
+                    MCP_LIMIT && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -583,18 +577,18 @@ export function CardNav({
                   )}
                   {installedSkills.filter((i) => i.enabled).length >
                     SKILL_LIMIT && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleWarningClick("skill");
-                        }}
-                        className="flex items-center justify-center size-6 rounded-full hover:bg-amber-500/20 transition-colors"
-                        type="button"
-                        title="点击查看详情"
-                      >
-                        <AlertTriangle className="size-4 text-amber-500" />
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleWarningClick("skill");
+                      }}
+                      className="flex items-center justify-center size-6 rounded-full hover:bg-amber-500/20 transition-colors"
+                      type="button"
+                      title="点击查看详情"
+                    >
+                      <AlertTriangle className="size-4 text-amber-500" />
+                    </button>
+                  )}
                 </div>
               </div>
               {renderItemBadges(installedSkills, "未安装技能", "skill")}
