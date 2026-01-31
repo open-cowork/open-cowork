@@ -207,6 +207,27 @@ export function useMcpCatalog() {
     [t],
   );
 
+  const uninstallServer = useCallback(
+    async (serverId: number, installId: number) => {
+      setLoadingId(serverId);
+      try {
+        await mcpService.deleteInstall(installId);
+        await refresh();
+        const server = servers.find((s) => s.id === serverId);
+        const serverName = server?.name || "";
+        toast.success(
+          `${serverName} MCP ${t("library.mcpLibrary.toasts.uninstalled", "已卸载")}`,
+        );
+      } catch (error) {
+        console.error("[MCP] uninstall failed:", error);
+        toast.error(t("library.mcpLibrary.toasts.error"));
+      } finally {
+        setLoadingId(null);
+      }
+    },
+    [refresh, servers, t],
+  );
+
   const items: McpDisplayItem[] = useMemo(() => {
     return servers.map((server) => ({
       server,
@@ -225,6 +246,7 @@ export function useMcpCatalog() {
     toggleInstall,
     updateServer,
     createServer,
+    uninstallServer,
     refresh,
     loadingId,
     savingEnvKey: envVarStore.savingEnvKey,

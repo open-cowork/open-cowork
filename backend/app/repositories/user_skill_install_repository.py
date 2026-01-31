@@ -34,7 +34,10 @@ class UserSkillInstallRepository:
     def list_by_user(session_db: Session, user_id: str) -> list[UserSkillInstall]:
         return (
             session_db.query(UserSkillInstall)
-            .filter(UserSkillInstall.user_id == user_id)
+            .filter(
+                UserSkillInstall.user_id == user_id,
+                UserSkillInstall.is_deleted.is_(False),
+            )
             .order_by(UserSkillInstall.created_at.desc())
             .all()
         )

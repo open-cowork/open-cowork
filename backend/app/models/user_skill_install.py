@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base, TimestampMixin
@@ -13,6 +13,12 @@ class UserSkillInstall(Base, TimestampMixin):
         Integer, ForeignKey("skills.id", ondelete="CASCADE"), nullable=False
     )
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        server_default=text("false"),
+        nullable=False,
+    )
 
     __table_args__ = (
         UniqueConstraint("user_id", "skill_id", name="uq_user_skill_user_skill"),

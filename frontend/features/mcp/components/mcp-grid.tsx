@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Settings, Power, PowerOff, AlertTriangle } from "lucide-react";
+import { Settings, Power, PowerOff, AlertTriangle, Trash2 } from "lucide-react";
 
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ interface McpGridProps {
   installs: UserMcpInstall[];
   loadingId?: number | null;
   onToggleInstall?: (serverId: number) => void;
+  onUninstall?: (serverId: number, installId: number) => void;
   onEditServer?: (server: McpServer) => void;
   onBatchToggle?: (enabled: boolean) => void;
   totalCount?: number;
@@ -27,6 +28,7 @@ export function McpGrid({
   installs,
   loadingId,
   onToggleInstall,
+  onUninstall,
   onEditServer,
   onBatchToggle,
   totalCount,
@@ -88,6 +90,7 @@ export function McpGrid({
           const install = installByServerId.get(server.id);
           const isEnabled = install?.enabled ?? false;
           const isLoading = loadingId === server.id;
+          const isInstalled = Boolean(install);
 
           return (
             <div
@@ -125,6 +128,18 @@ export function McpGrid({
                   onCheckedChange={() => onToggleInstall?.(server.id)}
                   disabled={isLoading}
                 />
+                {isInstalled && install && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    onClick={() => onUninstall?.(server.id, install.id)}
+                    disabled={isLoading}
+                    title={t("library.mcpLibrary.actions.uninstall", "卸载")}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                )}
               </div>
             </div>
           );

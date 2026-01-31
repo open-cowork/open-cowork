@@ -50,6 +50,7 @@ export function useSkillStore() {
           setInstalls((prev) =>
             prev.filter((install) => install.id !== current.id),
           );
+          setSkills((prev) => prev.filter((skill) => skill.id !== skillId));
           toast.success("技能已卸载");
         } else {
           const created = await skillsService.createInstall({

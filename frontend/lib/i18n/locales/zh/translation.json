@@ -664,6 +664,7 @@
       "actions": {
         "enable": "启用",
         "disable": "停用",
+        "uninstall": "卸载",
         "settings": "设置",
         "configure": "配置 MCP 服务器"
       },
@@ -688,6 +689,7 @@
       "toasts": {
         "enabled": "已启用",
         "disabled": "已停用",
+        "uninstalled": "已卸载",
         "error": "操作失败，请稍后重试"
       }
     }

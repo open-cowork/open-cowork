@@ -2,6 +2,7 @@ from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
 from app.models.skill import Skill
+from app.models.user_skill_install import UserSkillInstall
 
 
 class SkillRepository:
@@ -29,16 +30,37 @@ class SkillRepository:
 
         Mirrors MCP visibility rules: user-scoped skills override system skills with the same name.
         """
+        hidden_skill_ids = (
+            session_db.query(UserSkillInstall.skill_id)
+            .filter(
+                UserSkillInstall.user_id == user_id,
+                UserSkillInstall.is_deleted.is_(True),
+            )
+            .scalar_subquery()
+        )
+
         user_skill_names = (
             session_db.query(Skill.name)
-            .filter(Skill.scope == "user", Skill.owner_user_id == user_id)
+            .filter(
+                Skill.scope == "user",
+                Skill.owner_user_id == user_id,
+                ~Skill.id.in_(hidden_skill_ids),
+            )
             .scalar_subquery()
         )
 
         query = session_db.query(Skill).filter(
             or_(
-                and_(Skill.scope == "user", Skill.owner_user_id == user_id),
-                and_(Skill.scope == "system", ~Skill.name.in_(user_skill_names)),
+                and_(
+                    Skill.scope == "user",
+                    Skill.owner_user_id == user_id,
+                    ~Skill.id.in_(hidden_skill_ids),
+                ),
+                and_(
+                    Skill.scope == "system",
+                    ~Skill.name.in_(user_skill_names),
+                    ~Skill.id.in_(hidden_skill_ids),
+                ),
             )
         )
         return query.order_by(Skill.created_at.desc()).all()

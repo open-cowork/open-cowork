@@ -34,7 +34,10 @@ class UserMcpInstallRepository:
     def list_by_user(session_db: Session, user_id: str) -> list[UserMcpInstall]:
         return (
             session_db.query(UserMcpInstall)
-            .filter(UserMcpInstall.user_id == user_id)
+            .filter(
+                UserMcpInstall.user_id == user_id,
+                UserMcpInstall.is_deleted.is_(False),
+            )
             .order_by(UserMcpInstall.created_at.desc())
             .all()
         )

@@ -626,6 +626,10 @@ class SkillImportService:
         if install is None:
             install = UserSkillInstall(user_id=user_id, skill_id=skill.id, enabled=True)
             UserSkillInstallRepository.create(db, install)
+        else:
+            if getattr(install, "is_deleted", False):
+                install.is_deleted = False
+            install.enabled = True
 
         db.commit()
         db.refresh(skill)

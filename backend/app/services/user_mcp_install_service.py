@@ -31,6 +31,12 @@ class UserMcpInstallService:
             db, user_id, request.server_id
         )
         if existing:
+            if existing.is_deleted:
+                existing.is_deleted = False
+                existing.enabled = request.enabled
+                db.commit()
+                db.refresh(existing)
+                return self._to_response(existing)
             raise AppException(
                 error_code=ErrorCode.BAD_REQUEST,
                 message="MCP install already exists for server",
@@ -55,7 +61,11 @@ class UserMcpInstallService:
         request: UserMcpInstallUpdateRequest,
     ) -> UserMcpInstallResponse:
         install = UserMcpInstallRepository.get_by_id(db, install_id)
-        if not install or install.user_id != user_id:
+        if (
+            not install
+            or install.user_id != user_id
+            or getattr(install, "is_deleted", False)
+        ):
             raise AppException(
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"MCP install not found: {install_id}",
@@ -75,7 +85,8 @@ class UserMcpInstallService:
                 error_code=ErrorCode.NOT_FOUND,
                 message=f"MCP install not found: {install_id}",
             )
-        UserMcpInstallRepository.delete(db, install)
+        install.is_deleted = True
+        install.enabled = False
         db.commit()
 
     @staticmethod

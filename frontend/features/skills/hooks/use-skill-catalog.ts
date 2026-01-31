@@ -73,7 +73,7 @@ export function useSkillCatalog() {
       setLoadingId(installId);
       try {
         await skillsService.deleteInstall(installId);
-        setInstalls((prev) => prev.filter((i) => i.id !== installId));
+        await refresh();
         toast.success(
           t("library.skillsManager.toasts.uninstalled", "技能已卸载"),
         );
@@ -86,7 +86,7 @@ export function useSkillCatalog() {
         setLoadingId(null);
       }
     },
-    [t],
+    [refresh, t],
   );
 
   const setEnabled = useCallback(

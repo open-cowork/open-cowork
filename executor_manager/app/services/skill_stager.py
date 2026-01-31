@@ -1,5 +1,6 @@
 import logging
 import re
+import shutil
 import time
 from pathlib import Path
 from typing import Any
@@ -29,12 +30,31 @@ class SkillStager:
                 message=f"Invalid skill name: {name}",
             )
 
+    @staticmethod
+    def _clean_skills_dir(skills_root: Path, keep_names: set[str]) -> int:
+        """Remove previously staged skill directories for this session."""
+        removed = 0
+        skills_root_resolved = skills_root.resolve()
+        for entry in skills_root.iterdir():
+            if not entry.is_dir() or entry.is_symlink():
+                continue
+            if entry.name in keep_names:
+                continue
+            # Safety: never delete paths that escape the expected root.
+            try:
+                entry.resolve().relative_to(skills_root_resolved)
+            except Exception:
+                continue
+            try:
+                shutil.rmtree(entry)
+                removed += 1
+            except Exception:
+                continue
+        return removed
+
     def stage_skills(
         self, user_id: str, session_id: str, skills: dict[str, Any]
     ) -> dict[str, dict[str, Any]]:
-        if not skills:
-            return {}
-
         started_total = time.perf_counter()
 
         session_dir = self.workspace_manager.get_workspace_path(
@@ -46,9 +66,21 @@ class SkillStager:
         skills_root = workspace_dir / ".claude_data" / "skills"
         skills_root.mkdir(parents=True, exist_ok=True)
 
+        enabled_names: set[str] = set()
+        for name, spec in (skills or {}).items():
+            if not isinstance(spec, dict):
+                continue
+            self._validate_skill_name(name)
+            if spec.get("enabled") is False:
+                continue
+            enabled_names.add(name)
+
+        # Keep staging idempotent: skills that are disabled/deleted in backend should disappear.
+        removed = self._clean_skills_dir(skills_root, enabled_names)
+
         staged: dict[str, dict[str, Any]] = {}
         skills_root_resolved = skills_root.resolve()
-        for name, spec in skills.items():
+        for name, spec in (skills or {}).items():
             if not isinstance(spec, dict):
                 continue
             self._validate_skill_name(name)
@@ -112,8 +144,9 @@ class SkillStager:
                 "duration_ms": int((time.perf_counter() - started_total) * 1000),
                 "user_id": user_id,
                 "session_id": session_id,
-                "skills_requested": len(skills),
+                "skills_requested": len(skills or {}),
                 "skills_staged": len(staged),
+                "skills_removed": removed,
             },
         )
         return staged

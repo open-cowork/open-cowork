@@ -664,6 +664,7 @@
       "actions": {
         "enable": "Enable",
         "disable": "Disable",
+        "uninstall": "Uninstall",
         "settings": "Configure",
         "configure": "Configure MCP Server"
       },
@@ -688,6 +689,7 @@
       "toasts": {
         "enabled": "MCP server enabled",
         "disabled": "MCP server disabled",
+        "uninstalled": "MCP server uninstalled",
         "error": "Operation failed, please try again"
       }
     }

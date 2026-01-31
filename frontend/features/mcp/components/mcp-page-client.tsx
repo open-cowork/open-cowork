@@ -24,6 +24,7 @@ export function McpPageClient() {
     toggleInstall,
     updateServer,
     createServer,
+    uninstallServer,
     refresh,
     isLoading,
     loadingId,
@@ -96,6 +97,7 @@ export function McpPageClient() {
                   installs={installs}
                   loadingId={loadingId}
                   onToggleInstall={toggleInstall}
+                  onUninstall={uninstallServer}
                   onEditServer={(server) => setSelectedServer(server)}
                   onBatchToggle={handleBatchToggle}
                   totalCount={filteredServers.length}
