@@ -114,15 +114,6 @@ export function McpGrid({
               </div>
 
               <div className="flex items-center gap-2 flex-shrink-0">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  onClick={() => onEditServer?.(server)}
-                  title="设置"
-                >
-                  <Settings className="size-4" />
-                </Button>
                 <Switch
                   checked={isEnabled}
                   onCheckedChange={() => onToggleInstall?.(server.id)}
@@ -140,6 +131,15 @@ export function McpGrid({
                     <Trash2 className="size-4" />
                   </Button>
                 )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  onClick={() => onEditServer?.(server)}
+                  title="设置"
+                >
+                  <Settings className="size-4" />
+                </Button>
               </div>
             </div>
           );
