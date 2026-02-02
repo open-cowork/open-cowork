@@ -271,8 +271,8 @@ prompt_for_key() {
       fi
     fi
 
-    echo -n "$prompt_msg: "
-    read -rs input_value
+    echo "$prompt_msg: "
+    read -r input_value
     echo ""
 
     if [[ -z "$input_value" ]]; then
@@ -284,17 +284,6 @@ prompt_for_key() {
         print_warn "${key_name} is required"
         continue
       fi
-    fi
-
-    # Basic validation for API keys
-    if [[ "$key_name" == "Anthropic API Key" ]] && [[ ! "$input_value" =~ ^sk-ant-[a-zA-Z0-9_-]+$ ]]; then
-      print_warn "Invalid Anthropic API key format (should start with sk-ant-)"
-      continue
-    fi
-
-    if [[ "$key_name" == "OpenAI API Key" ]] && [[ ! "$input_value" =~ ^sk-[a-zA-Z0-9_-]+$ ]]; then
-      print_warn "Invalid OpenAI API key format (should start with sk-)"
-      continue
     fi
 
     echo "$input_value"
@@ -574,10 +563,11 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 
 # Avoid hanging in non-interactive environments (e.g. CI) even if interactive is the default.
-if [[ "$INTERACTIVE" = true ]] && [[ ! -t 0 ]]; then
-  warn "Interactive mode requested but stdin is not a TTY; falling back to non-interactive"
-  INTERACTIVE=false
-fi
+# Temporarily disabled TTY check for compatibility with various terminal environments
+# if [[ "$INTERACTIVE" = true ]] && [[ ! -t 0 ]]; then
+#   warn "Interactive mode requested but stdin is not a TTY; falling back to non-interactive"
+#   INTERACTIVE=false
+# fi
 
 # Run interactive setup if requested
 if [[ "$INTERACTIVE" = true ]]; then
