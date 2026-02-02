@@ -236,8 +236,32 @@
   },
   "mobile": {
     "chat": "对话",
+    "computer": "电脑",
     "artifacts": "产物",
     "status": "状态"
+  },
+  "computer": {
+    "title": "Poco 电脑",
+    "description": "运行中查看浏览器与终端过程",
+    "tabs": {
+      "browser": "浏览器",
+      "terminal": "终端"
+    },
+    "browser": {
+      "screenshotAlt": "浏览器截图",
+      "screenshotLoading": "正在加载截图...",
+      "screenshotUnavailable": "暂无截图",
+      "steps": "浏览器步骤",
+      "noSteps": "暂无浏览器步骤"
+    },
+    "terminal": {
+      "noSteps": "暂无终端输出",
+      "unknownCommand": "（未知命令）",
+      "noOutput": "（无输出）",
+      "running": "运行中...",
+      "exitCode": "退出码 {{code}}",
+      "killed": "超时终止"
+    }
   },
   "artifacts": {
     "empty": {

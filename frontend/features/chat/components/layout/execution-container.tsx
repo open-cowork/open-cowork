@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ChatPanel } from "../execution/chat-panel/chat-panel";
 import { ArtifactsPanel } from "../execution/file-panel/artifacts-panel";
+import { ComputerPanel } from "../execution/computer-panel/computer-panel";
 import { MobileExecutionView } from "./mobile-execution-view";
 import { useExecutionSession } from "@/features/chat/hooks/use-execution-session";
 import { useTaskHistoryContext } from "@/features/projects/contexts/task-history-context";
@@ -26,6 +27,12 @@ export function ExecutionContainer({ sessionId }: ExecutionContainerProps) {
     onPollingStop: refreshTasks,
   });
   const isMobile = useIsMobile();
+  const isSessionActive =
+    session?.status === "running" || session?.status === "accepted";
+  const browserEnabled = Boolean(
+    session?.config_snapshot?.browser_enabled ||
+    session?.state_patch?.browser?.enabled,
+  );
 
   // Loading state
   if (isLoading) {
@@ -83,11 +90,19 @@ export function ExecutionContainer({ sessionId }: ExecutionContainerProps) {
         {/* Right panel - Artifacts (55%) */}
         <ResizablePanel defaultSize={55} minSize={20}>
           <div className="h-full flex flex-col bg-muted/30 min-w-0">
-            <ArtifactsPanel
-              fileChanges={session?.state_patch.workspace_state?.file_changes}
-              sessionId={sessionId}
-              sessionStatus={session?.status}
-            />
+            {isSessionActive ? (
+              <ComputerPanel
+                sessionId={sessionId}
+                sessionStatus={session?.status}
+                browserEnabled={browserEnabled}
+              />
+            ) : (
+              <ArtifactsPanel
+                fileChanges={session?.state_patch.workspace_state?.file_changes}
+                sessionId={sessionId}
+                sessionStatus={session?.status}
+              />
+            )}
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>

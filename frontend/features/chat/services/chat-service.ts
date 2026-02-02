@@ -12,6 +12,8 @@ import type {
   SessionCancelResponse,
   SessionResponse,
   SessionUpdateRequest,
+  ToolExecutionResponse,
+  ComputerBrowserScreenshotResponse,
   TaskEnqueueRequest,
   TaskEnqueueResponse,
   TaskConfig,
@@ -251,6 +253,28 @@ export const chatService = {
     });
     return apiClient.get<RunResponse[]>(
       `${API_ENDPOINTS.runsBySession(sessionId)}${query}`,
+    );
+  },
+
+  getToolExecutions: async (
+    sessionId: string,
+    params?: { limit?: number; offset?: number },
+  ): Promise<ToolExecutionResponse[]> => {
+    const query = buildQuery({
+      limit: params?.limit,
+      offset: params?.offset,
+    });
+    return apiClient.get<ToolExecutionResponse[]>(
+      `${API_ENDPOINTS.sessionToolExecutions(sessionId)}${query}`,
+    );
+  },
+
+  getBrowserScreenshot: async (
+    sessionId: string,
+    toolUseId: string,
+  ): Promise<ComputerBrowserScreenshotResponse> => {
+    return apiClient.get<ComputerBrowserScreenshotResponse>(
+      API_ENDPOINTS.sessionBrowserScreenshot(sessionId, toolUseId),
     );
   },
 

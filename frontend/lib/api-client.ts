@@ -15,6 +15,8 @@ export const API_ENDPOINTS = {
     `/sessions/${sessionId}/messages-with-files`,
   sessionToolExecutions: (sessionId: string) =>
     `/sessions/${sessionId}/tool-executions`,
+  sessionBrowserScreenshot: (sessionId: string, toolUseId: string) =>
+    `/sessions/${sessionId}/computer/browser/${toolUseId}`,
   sessionUsage: (sessionId: string) => `/sessions/${sessionId}/usage`,
   sessionWorkspaceFiles: (sessionId: string) =>
     `/sessions/${sessionId}/workspace/files`,

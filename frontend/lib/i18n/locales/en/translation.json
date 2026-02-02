@@ -236,8 +236,32 @@
   },
   "mobile": {
     "chat": "Chat",
+    "computer": "Computer",
     "artifacts": "Artifacts",
     "status": "Status"
+  },
+  "computer": {
+    "title": "Poco Computer",
+    "description": "Watch browser and terminal steps while running",
+    "tabs": {
+      "browser": "Browser",
+      "terminal": "Terminal"
+    },
+    "browser": {
+      "screenshotAlt": "Browser screenshot",
+      "screenshotLoading": "Loading screenshot...",
+      "screenshotUnavailable": "No screenshot available",
+      "steps": "Browser steps",
+      "noSteps": "No browser steps yet"
+    },
+    "terminal": {
+      "noSteps": "No terminal output yet",
+      "unknownCommand": "(unknown command)",
+      "noOutput": "(no output)",
+      "running": "Running...",
+      "exitCode": "Exit code {{code}}",
+      "killed": "Killed by timeout"
+    }
   },
   "artifacts": {
     "empty": {

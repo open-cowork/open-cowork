@@ -19,11 +19,22 @@ const executionSessionSchema = sessionIdSchema.extend({
   currentProgress: z.number().min(0).optional(),
 });
 
+const toolExecutionsSchema = sessionIdSchema.extend({
+  limit: z.number().int().positive().optional(),
+  offset: z.number().int().min(0).optional(),
+});
+
+const browserScreenshotSchema = sessionIdSchema.extend({
+  toolUseId: z.string().trim().min(1, "缺少工具调用 ID"),
+});
+
 export type ListSessionsInput = z.infer<typeof listSessionsSchema>;
 export type GetExecutionSessionInput = z.infer<typeof executionSessionSchema>;
 export type GetMessagesInput = z.infer<typeof getMessagesSchema>;
 export type GetFilesInput = z.infer<typeof sessionIdSchema>;
 export type GetRunsBySessionInput = z.infer<typeof sessionIdSchema>;
+export type GetToolExecutionsInput = z.infer<typeof toolExecutionsSchema>;
+export type GetBrowserScreenshotInput = z.infer<typeof browserScreenshotSchema>;
 
 export async function listSessionsAction(input?: ListSessionsInput) {
   const { userId, limit, offset } = listSessionsSchema.parse(input ?? {});
@@ -50,4 +61,16 @@ export async function getFilesAction(input: GetFilesInput) {
 export async function getRunsBySessionAction(input: GetRunsBySessionInput) {
   const { sessionId } = sessionIdSchema.parse(input);
   return chatService.getRunsBySession(sessionId, { limit: 1000, offset: 0 });
+}
+
+export async function getToolExecutionsAction(input: GetToolExecutionsInput) {
+  const { sessionId, limit, offset } = toolExecutionsSchema.parse(input);
+  return chatService.getToolExecutions(sessionId, { limit, offset });
+}
+
+export async function getBrowserScreenshotAction(
+  input: GetBrowserScreenshotInput,
+) {
+  const { sessionId, toolUseId } = browserScreenshotSchema.parse(input);
+  return chatService.getBrowserScreenshot(sessionId, toolUseId);
 }

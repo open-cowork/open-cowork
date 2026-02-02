@@ -9,9 +9,10 @@ import "swiper/css/navigation";
 import { useSidebar } from "@/components/ui/sidebar";
 import { ChatPanel } from "../execution/chat-panel/chat-panel";
 import { ArtifactsPanel } from "../execution/file-panel/artifacts-panel";
+import { ComputerPanel } from "../execution/computer-panel/computer-panel";
 import type { ExecutionSession } from "@/features/chat/types";
 import { useT } from "@/lib/i18n/client";
-import { MessageSquare, Layers } from "lucide-react";
+import { MessageSquare, Layers, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MobileExecutionViewProps {
@@ -29,6 +30,12 @@ export function MobileExecutionView({
   const { setOpenMobile } = useSidebar();
   const [activeIndex, setActiveIndex] = React.useState(0);
   const swiperRef = React.useRef<SwiperType | null>(null);
+  const isSessionActive =
+    session?.status === "running" || session?.status === "accepted";
+  const browserEnabled = Boolean(
+    session?.config_snapshot?.browser_enabled ||
+    session?.state_patch?.browser?.enabled,
+  );
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden select-text">
@@ -74,11 +81,21 @@ export function MobileExecutionView({
             <div
               className={`h-full ${activeIndex === 1 ? "bg-background" : "bg-muted/50"}`}
             >
-              <ArtifactsPanel
-                fileChanges={session?.state_patch.workspace_state?.file_changes}
-                sessionId={sessionId}
-                sessionStatus={session?.status}
-              />
+              {isSessionActive && sessionId ? (
+                <ComputerPanel
+                  sessionId={sessionId}
+                  sessionStatus={session?.status}
+                  browserEnabled={browserEnabled}
+                />
+              ) : (
+                <ArtifactsPanel
+                  fileChanges={
+                    session?.state_patch.workspace_state?.file_changes
+                  }
+                  sessionId={sessionId}
+                  sessionStatus={session?.status}
+                />
+              )}
             </div>
           </SwiperSlide>
         </Swiper>
@@ -108,8 +125,14 @@ export function MobileExecutionView({
               : "text-muted-foreground hover:bg-muted",
           )}
         >
-          <Layers className="h-4 w-4" />
-          <span className="text-sm font-medium">{t("mobile.artifacts")}</span>
+          {isSessionActive ? (
+            <Monitor className="h-4 w-4" />
+          ) : (
+            <Layers className="h-4 w-4" />
+          )}
+          <span className="text-sm font-medium">
+            {isSessionActive ? t("mobile.computer") : t("mobile.artifacts")}
+          </span>
         </button>
       </div>
     </div>
