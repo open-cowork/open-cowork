@@ -111,6 +111,7 @@ function toExecutionSession(
     config_snapshot: parseConfigSnapshot(session.config_snapshot),
     task_name: undefined,
     user_prompt: undefined,
+    title: session.title,
   };
 }
 
@@ -123,6 +124,7 @@ function createDefaultSession(sessionId: string): ExecutionSession {
     state_patch: {},
     task_name: undefined,
     user_prompt: undefined,
+    title: null,
   };
 }
 

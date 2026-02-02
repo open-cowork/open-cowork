@@ -191,6 +191,10 @@
     "input": "输入",
     "output": "输出",
     "scrollToLatestMessage": "跳转到最新消息",
+    "expand": "展开",
+    "collapse": "收起",
+    "copyMessage": "复制消息",
+    "editMessage": "编辑消息",
     "statusBar": {
       "browser": "浏览器",
       "openDesktop": "打开桌面",

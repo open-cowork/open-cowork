@@ -279,6 +279,13 @@ export function useChatMessages({
   const isSessionActive =
     session?.status === "running" || session?.status === "accepted";
 
+  // Reset typing state when session becomes inactive
+  useEffect(() => {
+    if (!isSessionActive) {
+      setIsTyping(false);
+    }
+  }, [isSessionActive]);
+
   // Calculate messages for display
   const displayMessages = useMemo(() => {
     if (!isSessionActive || messages.length === 0) return messages;

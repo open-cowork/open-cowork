@@ -14,6 +14,7 @@ export interface ChatMessageListProps {
   isTyping?: boolean;
   internalContextsByUserMessageId?: Record<string, string[]>;
   runUsageByUserMessageId?: Record<string, UsageResponse | null>;
+  onEditMessage?: (content: string) => void;
 }
 
 export function ChatMessageList({
@@ -21,6 +22,7 @@ export function ChatMessageList({
   isTyping,
   internalContextsByUserMessageId,
   runUsageByUserMessageId,
+  onEditMessage,
 }: ChatMessageListProps) {
   const { t } = useT("translation");
   const scrollRef = React.useRef<HTMLDivElement>(null);
@@ -192,6 +194,7 @@ export function ChatMessageList({
                     key={message.id}
                     content={message.content}
                     attachments={message.attachments}
+                    onEdit={onEditMessage}
                   />
                 );
               }
@@ -201,6 +204,7 @@ export function ChatMessageList({
                   <UserMessage
                     content={message.content}
                     attachments={message.attachments}
+                    onEdit={onEditMessage}
                   />
                   <div className="flex justify-end w-full">
                     <div className="max-w-[85%] w-full rounded-md border border-border/60 bg-muted/20 px-3 py-2">

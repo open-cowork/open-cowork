@@ -79,4 +79,5 @@ export interface ExecutionSession {
   config_snapshot?: ConfigSnapshot | null;
   task_name?: string;
   user_prompt?: string;
+  title?: string | null;
 }

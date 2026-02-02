@@ -191,6 +191,10 @@
     "input": "Input",
     "output": "Output",
     "scrollToLatestMessage": "Jump to latest message",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "copyMessage": "Copy message",
+    "editMessage": "Edit message",
     "statusBar": {
       "browser": "Browser",
       "openDesktop": "Open desktop",

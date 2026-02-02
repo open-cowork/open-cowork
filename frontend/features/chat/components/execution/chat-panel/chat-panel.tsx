@@ -6,21 +6,10 @@ import { ChatMessageList } from "../../chat/chat-message-list";
 import { TodoList } from "./todo-list";
 import { StatusBar } from "./status-bar";
 import { PendingMessageList } from "./pending-message-list";
-import { ChatInput } from "./chat-input";
+import { ChatInput, type ChatInputRef } from "./chat-input";
 import { UserInputRequestCard } from "./user-input-request-card";
 import { PlanApprovalCard } from "./plan-approval-card";
 import { PanelHeader } from "@/components/shared/panel-header";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { buttonVariants } from "@/components/ui/button";
 import { useChatMessages } from "./hooks/use-chat-messages";
 import { usePendingMessages } from "./hooks/use-pending-messages";
 import { useUserInputRequests } from "./hooks/use-user-input-requests";
@@ -66,7 +55,7 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const { t } = useT("translation");
   const [isCancelling, setIsCancelling] = React.useState(false);
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = React.useState(false);
+  const inputRef = React.useRef<ChatInputRef>(null);
 
   // Message management hook
   const {
@@ -102,15 +91,9 @@ export function ChatPanel({
   const isSessionCancelable =
     session?.status === "running" || session?.status === "accepted";
 
-  const openCancelDialog = React.useCallback(() => {
+  const handleCancel = React.useCallback(async () => {
     if (!session?.session_id) return;
     if (!isSessionCancelable) return;
-    if (isCancelling) return;
-    setIsCancelDialogOpen(true);
-  }, [isCancelling, isSessionCancelable, session?.session_id]);
-
-  const confirmCancel = React.useCallback(async () => {
-    if (!session?.session_id) return;
     if (isCancelling) return;
 
     const prevStatus = session.status;
@@ -120,7 +103,6 @@ export function ChatPanel({
 
     try {
       await cancelSessionAction({ sessionId: session.session_id });
-      setIsCancelDialogOpen(false);
     } catch (error) {
       console.error("[ChatPanel] Failed to cancel session:", error);
       // Best-effort revert so the UI doesn't get stuck in a wrong terminal state.
@@ -128,7 +110,18 @@ export function ChatPanel({
     } finally {
       setIsCancelling(false);
     }
-  }, [isCancelling, session?.session_id, session?.status, updateSession]);
+  }, [
+    isCancelling,
+    isSessionCancelable,
+    session?.session_id,
+    session?.status,
+    updateSession,
+  ]);
+
+  // Handle edit message - load content into input
+  const handleEditMessage = React.useCallback((content: string) => {
+    inputRef.current?.setValueAndFocus(content);
+  }, []);
 
   // Handle send from input
   const handleSend = async (content: string, attachments?: InputFile[]) => {
@@ -177,7 +170,7 @@ export function ChatPanel({
           session?.new_message?.title ||
           t("chat.executionTitle")
         }
-        description={t("chat.emptyStateDesc")}
+        description={session?.title || t("chat.emptyStateDesc")}
         onIconClick={onIconClick}
       />
 
@@ -204,6 +197,7 @@ export function ChatPanel({
             isTyping={showTypingIndicator}
             internalContextsByUserMessageId={internalContextsByUserMessageId}
             runUsageByUserMessageId={runUsageByUserMessageId}
+            onEditMessage={handleEditMessage}
           />
         )}
       </div>
@@ -255,51 +249,13 @@ export function ChatPanel({
 
       {/* Input */}
       <ChatInput
+        ref={inputRef}
         onSend={handleSend}
-        onCancel={openCancelDialog}
+        onCancel={handleCancel}
         canCancel={isSessionCancelable || isCancelling}
         isCancelling={isCancelling}
         disabled={!session?.session_id || !!activeUserInput || isCancelling}
       />
-
-      <AlertDialog
-        open={isCancelDialogOpen}
-        onOpenChange={(open) => {
-          if (isCancelling) return;
-          setIsCancelDialogOpen(open);
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("chat.cancelTask")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("chat.cancelTaskConfirm")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isCancelling}>
-              {t("common.cancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                void confirmCancel();
-              }}
-              disabled={isCancelling}
-              className={buttonVariants({ variant: "destructive" })}
-            >
-              {isCancelling ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t("chat.cancelTask")}
-                </>
-              ) : (
-                t("chat.cancelTask")
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
