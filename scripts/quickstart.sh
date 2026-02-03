@@ -27,7 +27,11 @@ ONLY_RUSTFS=false
 INIT_BUCKET=true
 PULL_EXECUTOR=true
 FORCE_ENV=false
-INTERACTIVE=true
+# Default interactive mode only when stdin is a TTY.
+INTERACTIVE=false
+if [[ -t 0 ]]; then
+  INTERACTIVE=true
+fi
 ANTHROPIC_KEY=""
 OPENAI_KEY=""
 ANTHROPIC_BASE_URL=""
@@ -111,6 +115,17 @@ print_info() {
 
 warn() {
   print_warn "$@"
+}
+
+read_line() {
+  local var_name="$1"
+  local value=""
+  if [[ -r /dev/tty ]]; then
+    IFS= read -r value < /dev/tty
+  else
+    IFS= read -r value
+  fi
+  printf -v "$var_name" '%s' "$value"
 }
 
 require_cmd() {
@@ -270,15 +285,15 @@ prompt_for_key() {
   fi
 
   while true; do
-    echo "$prompt_msg"
+    echo "$prompt_msg" >&2
     if [[ -n "$display_default" ]]; then
-        echo -n -e "Input (Press Enter to keep [${GREEN}${display_default}${NC}]): "
+        echo -n -e "Input (Press Enter to keep [${GREEN}${display_default}${NC}]): " >&2
     else
-        echo -n "Input: "
+        echo -n "Input: " >&2
     fi
     
-    read -r input_value
-    echo ""
+    read_line input_value
+    echo "" >&2
 
     # User hit enter
     if [[ -z "$input_value" ]]; then
@@ -286,7 +301,7 @@ prompt_for_key() {
         echo "$current_value"
         return
       elif [[ "$is_optional" == "true" ]]; then
-        print_info "Skipping ${key_name} (optional)"
+        print_info "Skipping ${key_name} (optional)" >&2
         echo ""
         return
       else
@@ -308,11 +323,11 @@ prompt_for_text() {
   local input_value=""
 
   if [[ -n "$default_value" ]]; then
-    echo -n "$prompt_msg [$default_value]: "
+    echo -n "$prompt_msg [$default_value]: " >&2
   else
-    echo -n "$prompt_msg: "
+    echo -n "$prompt_msg: " >&2
   fi
-  read -r input_value
+  read_line input_value
 
   if [[ -z "$input_value" ]]; then
     if [[ "$is_optional" == "true" ]]; then
@@ -329,23 +344,23 @@ prompt_for_s3_public_endpoint() {
   local current_value="$1"
   local input_value=""
 
-  print_header "S3 Public Endpoint Configuration"
-  cat <<'EOF'
+  print_header "S3 Public Endpoint Configuration" >&2
+  cat >&2 <<'EOF'
 
 The S3 Public Endpoint is used to access generated artifacts (images, HTML files, etc.)
 directly from your browser. This is the URL that your frontend will use to download
 artifacts stored in S3/R2.
 
 EOF
-  echo -e "${YELLOW}When do you need this?${NC}"
-  cat <<'EOF'
+  echo -e "${YELLOW}When do you need this?${NC}" >&2
+  cat >&2 <<'EOF'
   • Remote deployments (VPS, cloud servers) - Users access from different networks
   • Cloudflare R2 or other cloud S3-compatible storage - Has a public domain
   • Sharing artifacts with others - Need accessible URLs
 
 EOF
-  echo -e "${YELLOW}When can you skip this?${NC}"
-  cat <<'EOF'
+  echo -e "${YELLOW}When can you skip this?${NC}" >&2
+  cat >&2 <<'EOF'
   • Local development only - You access everything from localhost
   • Using built-in MinIO (default) - Local S3 at localhost:9000
 
@@ -354,20 +369,20 @@ EOF
   # Standardize prompt style
   local display_msg="Enter S3 public endpoint (or press Enter to skip)"
   if [[ -n "$current_value" ]]; then
-      echo -n "$display_msg [${current_value}]: "
+      echo -n "$display_msg [${current_value}]: " >&2
   else
-      echo -n "$display_msg: "
+      echo -n "$display_msg: " >&2
   fi
   
-  read -r input_value
-  echo ""
+  read_line input_value
+  echo "" >&2
 
   if [[ -z "$input_value" ]]; then
     if [[ -n "$current_value" ]]; then
         echo "$current_value"
         return
     fi
-    print_info "Skipping S3 public endpoint (local development mode)"
+    print_info "Skipping S3 public endpoint (local development mode)" >&2
     echo ""
     return
   fi
@@ -411,6 +426,9 @@ EOF
     "Enter your Anthropic API key (get one at https://console.anthropic.com/)" \
     "false" \
     "$existing_anthropic")"
+  if [[ -n "$ANTHROPIC_KEY" ]] && [[ "$ANTHROPIC_KEY" != sk-ant-* ]]; then
+    print_warn "Anthropic API key usually starts with 'sk-ant-'. Please double-check."
+  fi
 
   # Prompt for Anthropic Base URL (optional)
   cat <<'EOF'
@@ -428,7 +446,11 @@ Enter the default Claude model to use. Press Enter to use the default.
 Common options: claude-sonnet-4-20250514, claude-opus-4-20250514
 
 EOF
-  DEFAULT_MODEL="$(prompt_for_text "Default Model" "${existing_default_model:-claude-sonnet-4-20250514}" "true")"
+  DEFAULT_MODEL="$(prompt_for_text "Default Claude Model" "${existing_default_model:-claude-sonnet-4-20250514}" "true")"
+  if [[ -n "$DEFAULT_MODEL" ]] && [[ "$DEFAULT_MODEL" != claude-* ]]; then
+    print_warn "DEFAULT_MODEL doesn't look like a Claude model (expected prefix 'claude-')."
+    print_warn "If you meant an OpenAI model, set OPENAI_DEFAULT_MODEL instead."
+  fi
 
   # Prompt for OpenAI key (optional)
   print_header "Optional Configuration"
@@ -444,6 +466,9 @@ EOF
     "Enter your OpenAI API key (or press Enter to skip)" \
     "true" \
     "$existing_openai")"
+  if [[ -n "$OPENAI_KEY" ]] && [[ "$OPENAI_KEY" != sk-* ]]; then
+    print_warn "OpenAI API key usually starts with 'sk-'. Please double-check."
+  fi
 
   if [[ -n "$OPENAI_KEY" ]]; then
     # Prompt for OpenAI Base URL (only if key is set)
@@ -453,7 +478,7 @@ If you use a proxy or custom API endpoint for OpenAI, enter the base URL below.
 Otherwise, press Enter to use the default (https://api.openai.com/v1).
 
 EOF
-    OPENAI_BASE_URL="$(prompt_for_text "OpenAI Base URL" "${existing_openai_base_url}" "true")"
+    OPENAI_BASE_URL="$(prompt_for_text "OpenAI Base URL" "${existing_openai_base_url:-https://api.openai.com/v1}" "true")"
 
     # Prompt for OpenAI Default Model
     cat <<'EOF'
@@ -463,6 +488,9 @@ Common options: gpt-4o, gpt-4o-mini, gpt-4-turbo
 
 EOF
     OPENAI_DEFAULT_MODEL="$(prompt_for_text "OpenAI Default Model" "${existing_openai_model:-gpt-4o-mini}" "true")"
+    if [[ -n "$OPENAI_DEFAULT_MODEL" ]] && [[ "$OPENAI_DEFAULT_MODEL" != gpt-* && "$OPENAI_DEFAULT_MODEL" != o1* && "$OPENAI_DEFAULT_MODEL" != o3* ]]; then
+      print_warn "OPENAI_DEFAULT_MODEL doesn't look like a typical OpenAI model name (e.g. gpt-4o-mini)."
+    fi
   fi
 
   # Prompt for S3 public endpoint
@@ -581,15 +609,17 @@ if [[ "$INTERACTIVE" = true ]]; then
   interactive_setup
 fi
 
-# Handle API keys from CLI arguments (In non-interactive mode, or ensuring persistent write)
-if [[ -n "$ANTHROPIC_KEY" ]]; then
-  write_env_key "ANTHROPIC_AUTH_TOKEN" "$ANTHROPIC_KEY"
-  print_success "Anthropic API key configured"
-fi
+# Handle API keys from CLI arguments (non-interactive mode).
+if [[ "$INTERACTIVE" = false ]]; then
+  if [[ -n "$ANTHROPIC_KEY" ]]; then
+    write_env_key "ANTHROPIC_AUTH_TOKEN" "$ANTHROPIC_KEY"
+    print_success "Anthropic API key configured"
+  fi
 
-if [[ -n "$OPENAI_KEY" ]]; then
-  write_env_key "OPENAI_API_KEY" "$OPENAI_KEY"
-  print_success "OpenAI API key configured"
+  if [[ -n "$OPENAI_KEY" ]]; then
+    write_env_key "OPENAI_API_KEY" "$OPENAI_KEY"
+    print_success "OpenAI API key configured"
+  fi
 fi
 
 DATA_DIR_ABS="$(resolve_path "$DATA_DIR")"
@@ -728,6 +758,11 @@ print_success "Bootstrap completed!"
 echo ""
 echo "Next steps:"
 echo "  1. Make sure ANTHROPIC_AUTH_TOKEN is set in .env"
-echo "  2. Start services: docker compose up -d"
-echo "  3. Open browser: http://localhost:3000"
+if [[ "$START_ALL" = true ]]; then
+  echo "  2. Open browser: http://localhost:3000"
+  echo "  3. View logs: docker compose logs -f backend executor-manager frontend"
+else
+  echo "  2. Start services: docker compose up -d"
+  echo "  3. Open browser: http://localhost:3000"
+fi
 echo ""
