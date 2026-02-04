@@ -85,6 +85,7 @@ export function TaskComposer({
   onSend,
   isSubmitting,
   allowProjectize = true,
+  onRepoDefaultsSave,
   onFocus,
   onBlur,
 }: {
@@ -96,6 +97,11 @@ export function TaskComposer({
   onSend: (options?: TaskSendOptions) => void | Promise<void>;
   isSubmitting?: boolean;
   allowProjectize?: boolean;
+  onRepoDefaultsSave?: (payload: {
+    repo_url: string;
+    git_branch: string | null;
+    git_token_env_key: string | null;
+  }) => void | Promise<void>;
   onFocus?: () => void;
   onBlur?: () => void;
 }) {
@@ -192,6 +198,31 @@ export function TaskComposer({
     const inferred = inferScheduleFromCron(scheduledCron);
     return formatScheduleSummary(inferred, t);
   }, [scheduledCron, t]);
+
+  const handleRepoSave = React.useCallback(async () => {
+    if (isSubmitting || isUploading) return;
+    const url = repoUrl.trim();
+    // Only persist when a non-empty repo URL is provided to avoid accidental clears.
+    if (url && onRepoDefaultsSave) {
+      try {
+        await onRepoDefaultsSave({
+          repo_url: url,
+          git_branch: gitBranch.trim() || null,
+          git_token_env_key: gitTokenEnvKey.trim() || null,
+        });
+      } catch (error) {
+        console.error("[TaskComposer] Failed to persist repo defaults", error);
+      }
+    }
+    setRepoDialogOpen(false);
+  }, [
+    gitBranch,
+    gitTokenEnvKey,
+    isSubmitting,
+    isUploading,
+    onRepoDefaultsSave,
+    repoUrl,
+  ]);
 
   const runScheduleSummary = React.useMemo(() => {
     if (runScheduleMode === "nightly")
@@ -486,7 +517,7 @@ export function TaskComposer({
             >
               {t("common.cancel")}
             </Button>
-            <Button type="button" onClick={() => setRepoDialogOpen(false)}>
+            <Button type="button" onClick={handleRepoSave}>
               {t("common.save")}
             </Button>
           </DialogFooter>

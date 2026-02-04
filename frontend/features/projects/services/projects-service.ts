@@ -6,6 +6,9 @@ interface ProjectApiResponse {
   project_id: string;
   user_id?: string;
   name: string;
+  repo_url?: string | null;
+  git_branch?: string | null;
+  git_token_env_key?: string | null;
   created_at?: string;
   updated_at?: string;
   task_count?: number;
@@ -16,6 +19,9 @@ function mapProject(project: ProjectApiResponse): ProjectItem {
     id: project.project_id,
     name: project.name,
     userId: project.user_id,
+    repoUrl: project.repo_url ?? null,
+    gitBranch: project.git_branch ?? null,
+    gitTokenEnvKey: project.git_token_env_key ?? null,
     createdAt: project.created_at,
     updatedAt: project.updated_at,
     taskCount:
@@ -96,7 +102,12 @@ export const projectsService = {
 
   updateProject: async (
     projectId: string,
-    payload: { name?: string },
+    payload: {
+      name?: string;
+      repo_url?: string | null;
+      git_branch?: string | null;
+      git_token_env_key?: string | null;
+    },
   ): Promise<ProjectItem> => {
     const project = await apiClient.patch<ProjectApiResponse>(
       API_ENDPOINTS.project(projectId),

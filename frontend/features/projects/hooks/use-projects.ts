@@ -6,7 +6,10 @@ import {
   updateProjectAction,
 } from "@/features/projects/actions/project-actions";
 import type { ProjectItem } from "@/features/projects/types";
-import type { ProjectRepoDefaultsInput } from "@/components/shared/app-shell-context";
+import type {
+  ProjectRepoDefaultsInput,
+  ProjectUpdatesInput,
+} from "@/components/shared/app-shell-context";
 
 interface UseProjectsOptions {
   initialProjects?: ProjectItem[];
@@ -58,11 +61,11 @@ export function useProjects(options: UseProjectsOptions = {}) {
   );
 
   const updateProject = useCallback(
-    async (projectId: string, updates: { name?: string }) => {
+    async (projectId: string, updates: ProjectUpdatesInput) => {
       try {
         const updated = await updateProjectAction({
           projectId,
-          name: updates.name,
+          ...updates,
         });
         setProjects((prev) =>
           prev.map((project) =>

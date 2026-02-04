@@ -17,6 +17,10 @@ export type ProjectRepoDefaultsInput = {
   git_token_env_key?: string | null;
 };
 
+export type ProjectUpdatesInput = {
+  name?: string;
+} & ProjectRepoDefaultsInput;
+
 export interface AppShellContextValue {
   lng: string;
   openSettings: () => void;
@@ -28,7 +32,7 @@ export interface AppShellContextValue {
   ) => Promise<ProjectItem | null>;
   updateProject: (
     projectId: string,
-    updates: { name?: string },
+    updates: ProjectUpdatesInput,
   ) => Promise<ProjectItem | null>;
   deleteProject: (projectId: string) => Promise<void>;
 

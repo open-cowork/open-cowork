@@ -69,6 +69,15 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
       console.log("[Project] Sending task:", inputValue, { mode });
 
       try {
+        // Best-effort: persist repo defaults on the project for future runs.
+        if (repoUrl) {
+          await updateProject(projectId, {
+            repo_url: repoUrl,
+            git_branch: gitBranch,
+            ...(gitTokenEnvKey ? { git_token_env_key: gitTokenEnvKey } : {}),
+          });
+        }
+
         const config: TaskConfig & Record<string, unknown> = {};
         if (inputFiles.length > 0) {
           config.input_files = inputFiles;
@@ -135,7 +144,17 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
         setIsSubmitting(false);
       }
     },
-    [addTask, inputValue, isSubmitting, lng, mode, projectId, router, t],
+    [
+      addTask,
+      inputValue,
+      isSubmitting,
+      lng,
+      mode,
+      projectId,
+      router,
+      t,
+      updateProject,
+    ],
   );
 
   const handleQuickActionPick = React.useCallback(
@@ -195,6 +214,9 @@ export function ProjectPageClient({ projectId }: ProjectPageClientProps) {
             onSend={handleSendTask}
             isSubmitting={isSubmitting}
             allowProjectize={false}
+            onRepoDefaultsSave={async (payload) => {
+              await updateProject(projectId, payload);
+            }}
           />
 
           <QuickActions onPick={handleQuickActionPick} />

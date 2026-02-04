@@ -22,6 +22,9 @@ const listTasksSchema = z.object({
 const updateProjectSchema = z.object({
   projectId: z.string().trim().min(1, "请选择项目"),
   name: z.string().trim().min(1, "请输入项目名称").optional(),
+  repo_url: z.string().trim().optional().nullable(),
+  git_branch: z.string().trim().optional().nullable(),
+  git_token_env_key: z.string().trim().optional().nullable(),
 });
 
 const deleteProjectSchema = z.object({
@@ -62,8 +65,14 @@ export async function listTaskHistoryAction(input?: ListTasksInput) {
 }
 
 export async function updateProjectAction(input: UpdateProjectInput) {
-  const { projectId, name } = updateProjectSchema.parse(input);
-  return projectsService.updateProject(projectId, { name });
+  const { projectId, name, repo_url, git_branch, git_token_env_key } =
+    updateProjectSchema.parse(input);
+  return projectsService.updateProject(projectId, {
+    name,
+    repo_url,
+    git_branch,
+    git_token_env_key,
+  });
 }
 
 export async function deleteProjectAction(input: DeleteProjectInput) {
