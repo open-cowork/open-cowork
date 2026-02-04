@@ -126,6 +126,8 @@ services:
       EXECUTOR_IMAGE: ${EXECUTOR_IMAGE:-ghcr.io/poco-ai/poco-executor:lite}
       # Optional: executor image with desktop/browser stack (used when browser_enabled=true).
       EXECUTOR_BROWSER_IMAGE: ${EXECUTOR_BROWSER_IMAGE:-ghcr.io/poco-ai/poco-executor:full}
+      # Default desktop viewport for browser-enabled runs (Playwright MCP).
+      POCO_BROWSER_VIEWPORT_SIZE: ${POCO_BROWSER_VIEWPORT_SIZE:-1366x768}
       # Manager accesses executor containers through published host ports.
       EXECUTOR_PUBLISHED_HOST: ${EXECUTOR_PUBLISHED_HOST:-host.docker.internal}
 

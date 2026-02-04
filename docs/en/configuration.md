@@ -57,6 +57,7 @@ Required (otherwise it will not start or cannot dispatch tasks):
 - `CALLBACK_BASE_URL`: **must be reachable from executor containers**; Compose default `http://host.docker.internal:8001`
 - `EXECUTOR_IMAGE`: executor image name (manager launches it via Docker API). Recommended default: `ghcr.io/poco-ai/poco-executor:lite`
 - `EXECUTOR_BROWSER_IMAGE`: optional, executor image with desktop/browser stack (used when `browser_enabled=true`). Recommended: `ghcr.io/poco-ai/poco-executor:full`
+- `POCO_BROWSER_VIEWPORT_SIZE`: optional, browser viewport size (affects screenshots and responsive layouts), e.g. `1366x768` / `1920x1080`. The manager passes it through to executor containers (only when `browser_enabled=true`).
 - `EXECUTOR_PUBLISHED_HOST`: host used to access executor containers mapped to host ports (bare metal: `localhost`; in Compose: `host.docker.internal`)
 - `WORKSPACE_ROOT`: workspace root (**must be a host path**, bind-mounted into executor containers)
 - `S3_ENDPOINT` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_BUCKET`: used to export workspaces to object storage
@@ -97,6 +98,7 @@ Required (when running tasks):
 Optional:
 
 - `WORKSPACE_GIT_IGNORE`: extra ignore rules written to `.git/info/exclude` (comma or newline separated)
+- `POCO_BROWSER_VIEWPORT_SIZE`: optional, browser viewport size (affects screenshots and responsive layouts), e.g. `1366x768` / `1920x1080` (only effective when `browser_enabled=true`)
 - `DEBUG` / `LOG_LEVEL` / `LOG_TO_FILE` etc. (same as above)
 
 ## Frontend (Next.js)

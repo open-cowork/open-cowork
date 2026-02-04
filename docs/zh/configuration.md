@@ -54,6 +54,7 @@
 - `CALLBACK_BASE_URL`：**必须能被 Executor 容器访问到**，Docker Compose 默认 `http://host.docker.internal:8001`
 - `EXECUTOR_IMAGE`：Executor 镜像名（Executor Manager 会通过 Docker API 拉起该镜像）。默认建议：`ghcr.io/poco-ai/poco-executor:lite`
 - `EXECUTOR_BROWSER_IMAGE`：可选，启用浏览器/桌面能力时使用的 Executor 镜像（用于 `browser_enabled=true`）。默认建议：`ghcr.io/poco-ai/poco-executor:full`
+- `POCO_BROWSER_VIEWPORT_SIZE`：可选，浏览器视口大小（影响截图与响应式布局），格式如 `1366x768` / `1920x1080`。该值由 Executor Manager 透传给 Executor 容器（仅 `browser_enabled=true` 时）。
 - `EXECUTOR_PUBLISHED_HOST`：Executor Manager 访问“已映射到宿主机端口”的 Executor 容器时使用的 host（本地裸跑一般是 `localhost`；Compose 内推荐 `host.docker.internal`）
 - `WORKSPACE_ROOT`：工作区根目录（**必须是宿主机路径**，因为会被 bind mount 到 Executor 容器）
 - `S3_ENDPOINT` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_BUCKET`：用于导出 workspace 到对象存储（否则相关接口会失败）
@@ -94,6 +95,7 @@
 可选：
 
 - `WORKSPACE_GIT_IGNORE`：额外写入到 `.git/info/exclude` 的忽略规则（逗号/换行分隔）
+- `POCO_BROWSER_VIEWPORT_SIZE`：可选，浏览器视口大小（影响截图与响应式布局），格式如 `1366x768` / `1920x1080`（`browser_enabled=true` 时生效）
 - `DEBUG` / `LOG_LEVEL` / `LOG_TO_FILE` 等日志变量（同上）
 
 ## Frontend（Next.js）
