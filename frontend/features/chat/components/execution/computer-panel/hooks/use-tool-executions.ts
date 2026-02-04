@@ -21,22 +21,34 @@ export function useToolExecutions({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const lastSessionIdRef = useRef<string | null>(null);
+  const hasLoadedOnceRef = useRef(false);
+  const requestSeqRef = useRef(0);
 
   const fetchOnce = useCallback(async () => {
     if (!sessionId) return;
-    setIsLoading(true);
+    const seq = (requestSeqRef.current += 1);
+    const shouldShowLoading = !hasLoadedOnceRef.current;
+    if (shouldShowLoading) {
+      setIsLoading(true);
+    }
     try {
       const data = await getToolExecutionsAction({
         sessionId,
         limit,
         offset: 0,
       });
+      if (seq !== requestSeqRef.current) return;
       setExecutions(data);
       setError(null);
     } catch (err) {
+      if (seq !== requestSeqRef.current) return;
       setError(err as Error);
     } finally {
-      setIsLoading(false);
+      if (seq !== requestSeqRef.current) return;
+      if (shouldShowLoading) {
+        setIsLoading(false);
+        hasLoadedOnceRef.current = true;
+      }
     }
   }, [limit, sessionId]);
 
@@ -45,8 +57,11 @@ export function useToolExecutions({
     if (!sessionId) return;
     if (lastSessionIdRef.current === sessionId) return;
     lastSessionIdRef.current = sessionId;
+    hasLoadedOnceRef.current = false;
+    requestSeqRef.current += 1;
     setExecutions([]);
     setError(null);
+    setIsLoading(false);
     void fetchOnce();
   }, [fetchOnce, sessionId]);
 
