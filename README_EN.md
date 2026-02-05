@@ -79,6 +79,8 @@ Run the interactive setup script to automatically generate configuration and sta
 
 Visit: http://localhost:3000 after startup completes.
 
+For detailed deployment documentation and troubleshooting, please refer to the [Deployment Guide](./docs/README.md).
+
 ## Community
 
 Scan to join our WeChat group:
