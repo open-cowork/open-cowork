@@ -3,7 +3,6 @@ import type { InputFile } from "@/features/chat/types/api/session";
 import {
   Loader2,
   ArrowUp,
-  Mic,
   Plus,
   GitBranch,
   Chrome,
@@ -923,16 +922,6 @@ export function TaskComposer({
             </TooltipContent>
           </Tooltip>
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            disabled={isSubmitting}
-            className="size-9 rounded-xl hover:bg-accent"
-            title={t("hero.voiceInput")}
-          >
-            <Mic className="size-4" />
-          </Button>
           <Button
             onClick={handleSubmit}
             disabled={

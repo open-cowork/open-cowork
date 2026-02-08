@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { ArrowUp, Mic, Plus, SlidersHorizontal, Loader2 } from "lucide-react";
+import { ArrowUp, Plus, SlidersHorizontal, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useT } from "@/lib/i18n/client";
@@ -331,16 +331,6 @@ export function ChatInput({
 
             {/* Right side buttons */}
             <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-9 rounded-xl hover:bg-accent"
-                title={t("hero.voiceInput")}
-                disabled={disabled}
-              >
-                <Mic className="size-4" />
-              </Button>
               <Button
                 onClick={() => {
                   onSend(attachments);
