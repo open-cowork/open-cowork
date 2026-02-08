@@ -7,6 +7,7 @@
     "newTask": "Neue Aufgabe",
     "search": "Suche",
     "library": "Funktionen",
+    "openMain": "Hauptseitenleiste öffnen",
     "scheduledTasks": "Geplante Aufgaben",
     "projects": "Projekte",
     "newProject": "Neues Projekt",
@@ -359,6 +360,9 @@
     "title": "Funktionen",
     "subtitle": "Verwalte deine Skills, Plugins und Tools",
     "comingSoon": "Demnächst",
+    "mobile": {
+      "back": "Zurück zu den Funktionen"
+    },
     "sidebar": {
       "title": "Funktions-Shortcuts",
       "description": "Wähle eine Funktion, um zu ihrer Konfiguration zu springen.",

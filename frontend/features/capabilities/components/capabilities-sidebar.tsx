@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { PanelLeft } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/ui/sidebar";
 import type { CapabilityView } from "@/features/capabilities/hooks/use-capability-views";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
@@ -10,6 +13,7 @@ interface CapabilitiesSidebarProps {
   views: CapabilityView[];
   activeViewId?: string;
   onSelect?: (viewId: string) => void;
+  variant?: "default" | "mobile";
 }
 
 const GROUP_ORDER: CapabilityView["group"][] = [
@@ -23,8 +27,19 @@ export function CapabilitiesSidebar({
   views,
   activeViewId,
   onSelect,
+  variant = "default",
 }: CapabilitiesSidebarProps) {
   const { t } = useT("translation");
+  const isMobileVariant = variant === "mobile";
+  const { isMobile, setOpenMobile, setOpen } = useSidebar();
+
+  const handleOpenMainSidebar = React.useCallback(() => {
+    if (isMobile) {
+      setOpenMobile(true);
+      return;
+    }
+    setOpen(true);
+  }, [isMobile, setOpen, setOpenMobile]);
 
   const handleClick = React.useCallback(
     (viewId: string) => {
@@ -66,29 +81,52 @@ export function CapabilitiesSidebar({
     );
   };
 
+  const verticalNavClassName = isMobileVariant
+    ? "flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4"
+    : "hidden flex-1 overflow-y-auto px-2 py-2 md:flex md:flex-col";
+
   return (
-    <aside className="flex min-h-0 flex-col border-b border-border/50 lg:border-b-0 lg:border-r lg:border-border/50">
-      <div className="flex h-16 items-center px-4">
+    <aside
+      className={cn(
+        "flex min-h-0 flex-col border-b border-border/50 md:border-b-0 md:border-r md:border-border/50",
+        isMobileVariant && "h-full",
+      )}
+    >
+      <div className="flex h-16 items-center gap-2 px-4">
+        {isMobile ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="-ml-2 text-muted-foreground"
+            onClick={handleOpenMainSidebar}
+            aria-label={t("sidebar.openMain")}
+          >
+            <PanelLeft className="size-5" />
+          </Button>
+        ) : null}
         <h2 className="truncate text-lg font-semibold tracking-tight">
           {t("library.title")}
         </h2>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto px-4 py-2 lg:hidden">
-        {groupedViews.map((group, groupIndex) => (
-          <React.Fragment key={groupIndex}>
-            {group.map((view) => renderItem(view, true))}
-            {groupIndex < groupedViews.length - 1 && (
-              <div
-                className="my-1 w-px shrink-0 bg-border/80"
-                aria-hidden="true"
-              />
-            )}
-          </React.Fragment>
-        ))}
-      </div>
+      {!isMobileVariant ? (
+        <div className="flex gap-4 overflow-x-auto px-4 py-2 md:hidden">
+          {groupedViews.map((group, groupIndex) => (
+            <React.Fragment key={groupIndex}>
+              {group.map((view) => renderItem(view, true))}
+              {groupIndex < groupedViews.length - 1 && (
+                <div
+                  className="my-1 w-px shrink-0 bg-border/80"
+                  aria-hidden="true"
+                />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      ) : null}
 
-      <nav className="hidden flex-1 overflow-y-auto px-2 py-2 lg:flex lg:flex-col">
+      <nav className={verticalNavClassName}>
         {groupedViews.map((group, groupIndex) => (
           <React.Fragment key={groupIndex}>
             <div className="space-y-1">

@@ -7,6 +7,7 @@
     "newTask": "新建任务",
     "search": "搜索",
     "library": "能力",
+    "openMain": "打开主侧边栏",
     "scheduledTasks": "定时任务",
     "projects": "项目",
     "newProject": "新建项目",
@@ -359,6 +360,9 @@
     "title": "能力",
     "subtitle": "管理您的技能、插件和工具",
     "comingSoon": "即将推出",
+    "mobile": {
+      "back": "返回能力列表"
+    },
     "sidebar": {
       "title": "能力导航",
       "description": "选择要查看的能力设置",

@@ -7,6 +7,7 @@
     "newTask": "New Task",
     "search": "Search",
     "library": "Capabilities",
+    "openMain": "Open main sidebar",
     "scheduledTasks": "Scheduled Tasks",
     "projects": "Projects",
     "newProject": "New Project",
@@ -359,6 +360,9 @@
     "title": "Capabilities",
     "subtitle": "Manage your skills, plugins and tools",
     "comingSoon": "Coming Soon",
+    "mobile": {
+      "back": "Back to capabilities"
+    },
     "sidebar": {
       "title": "Capability Shortcuts",
       "description": "Select a capability to jump to its configuration.",
