@@ -241,6 +241,8 @@ export function ChatPanel({
           <ChatMessageList
             messages={displayMessages}
             isTyping={showTypingIndicator}
+            repoUrl={session?.config_snapshot?.repo_url ?? null}
+            gitBranch={session?.config_snapshot?.git_branch ?? null}
             internalContextsByUserMessageId={internalContextsByUserMessageId}
             runUsageByUserMessageId={runUsageByUserMessageId}
             onEditMessage={handleEditMessage}

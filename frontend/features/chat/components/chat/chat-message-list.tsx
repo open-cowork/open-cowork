@@ -12,6 +12,8 @@ import { useT } from "@/lib/i18n/client";
 export interface ChatMessageListProps {
   messages: ChatMessage[];
   isTyping?: boolean;
+  repoUrl?: string | null;
+  gitBranch?: string | null;
   internalContextsByUserMessageId?: Record<string, string[]>;
   runUsageByUserMessageId?: Record<string, UsageResponse | null>;
   onEditMessage?: (content: string) => void;
@@ -20,6 +22,8 @@ export interface ChatMessageListProps {
 export function ChatMessageList({
   messages,
   isTyping,
+  repoUrl,
+  gitBranch,
   internalContextsByUserMessageId,
   runUsageByUserMessageId,
   onEditMessage,
@@ -33,6 +37,11 @@ export function ChatMessageList({
   const hasInitializedRef = React.useRef(false);
   const [expandedInternalContextIds, setExpandedInternalContextIds] =
     React.useState<Set<string>>(() => new Set());
+
+  const firstUserMessageId = React.useMemo(() => {
+    const first = messages.find((msg) => msg.role === "user");
+    return first?.id ?? null;
+  }, [messages]);
 
   const toggleInternalContext = React.useCallback((messageId: string) => {
     setExpandedInternalContextIds((prev) => {
@@ -194,6 +203,10 @@ export function ChatMessageList({
                     key={message.id}
                     content={message.content}
                     attachments={message.attachments}
+                    repoUrl={message.id === firstUserMessageId ? repoUrl : null}
+                    gitBranch={
+                      message.id === firstUserMessageId ? gitBranch : null
+                    }
                     onEdit={onEditMessage}
                   />
                 );
@@ -204,6 +217,10 @@ export function ChatMessageList({
                   <UserMessage
                     content={message.content}
                     attachments={message.attachments}
+                    repoUrl={message.id === firstUserMessageId ? repoUrl : null}
+                    gitBranch={
+                      message.id === firstUserMessageId ? gitBranch : null
+                    }
                     onEdit={onEditMessage}
                   />
                   <div className="flex justify-end w-full">

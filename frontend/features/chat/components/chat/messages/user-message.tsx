@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ChevronDown, ChevronUp, Copy, Check, Pencil } from "lucide-react";
 import { FileCard } from "@/components/shared/file-card";
+import { RepoCard } from "@/components/shared/repo-card";
 import { Button } from "@/components/ui/button";
 import type { MessageBlock, InputFile } from "@/features/chat/types";
 import { useT } from "@/lib/i18n/client";
@@ -12,10 +13,14 @@ const MAX_LINES = 5;
 export function UserMessage({
   content,
   attachments,
+  repoUrl,
+  gitBranch,
   onEdit,
 }: {
   content: string | MessageBlock[];
   attachments?: InputFile[];
+  repoUrl?: string | null;
+  gitBranch?: string | null;
   onEdit?: (content: string) => void;
 }) {
   const { t } = useT("translation");
@@ -41,6 +46,10 @@ export function UserMessage({
   };
 
   const textContent = parseContent(content);
+  const trimmedRepoUrl = (repoUrl || "").trim();
+  const trimmedGitBranch = (gitBranch || "").trim();
+  const hasRepo = trimmedRepoUrl.length > 0;
+  const hasAttachments = Boolean(attachments && attachments.length > 0);
 
   // Copy handler
   const onCopy = async () => {
@@ -82,8 +91,27 @@ export function UserMessage({
 
   return (
     <div className="flex w-full min-w-0 flex-col items-end gap-2">
-      {attachments && attachments.length > 0 && (
+      {(hasRepo || hasAttachments) && (
         <div className="flex w-full min-w-0 max-w-[85%] flex-wrap justify-end gap-2">
+          {hasRepo ? (
+            <RepoCard
+              url={trimmedRepoUrl}
+              branch={trimmedGitBranch || null}
+              className="w-full max-w-48"
+              showRemove={false}
+              onOpen={() => {
+                const raw = trimmedRepoUrl;
+                const openUrl = /^https?:\/\//i.test(raw)
+                  ? raw
+                  : `https://${raw}`;
+                try {
+                  window.open(openUrl, "_blank", "noopener,noreferrer");
+                } catch (error) {
+                  console.warn("[UserMessage] Failed to open repo url", error);
+                }
+              }}
+            />
+          ) : null}
           {attachments.map((file, i) => (
             <FileCard
               key={i}

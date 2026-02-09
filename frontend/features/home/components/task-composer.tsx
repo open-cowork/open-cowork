@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { FileCard } from "@/components/shared/file-card";
+import { RepoCard } from "@/components/shared/repo-card";
 import { playFileUploadSound } from "@/lib/utils/sound";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -422,8 +423,17 @@ export function TaskComposer({
       />
 
       {/* Attachments Display */}
-      {attachments.length > 0 && (
+      {repoUrl.trim().length > 0 || attachments.length > 0 ? (
         <div className="flex flex-wrap gap-3 px-4 pt-4">
+          {repoUrl.trim() ? (
+            <RepoCard
+              url={repoUrl.trim()}
+              branch={gitBranch.trim() || null}
+              onOpen={() => setRepoDialogOpen(true)}
+              onRemove={() => setRepoUrl("")}
+              className="w-48 bg-background border-dashed"
+            />
+          ) : null}
           {attachments.map((file, i) => (
             <FileCard
               key={i}
@@ -433,7 +443,7 @@ export function TaskComposer({
             />
           ))}
         </div>
-      )}
+      ) : null}
 
       <Dialog open={repoDialogOpen} onOpenChange={setRepoDialogOpen}>
         <DialogContent className="max-w-xl">

@@ -93,6 +93,15 @@ function parseConfigSnapshot(
       typeof configSnapshot.browser_enabled === "boolean"
         ? configSnapshot.browser_enabled
         : undefined,
+    repo_url: isNonEmptyString(configSnapshot.repo_url)
+      ? configSnapshot.repo_url.trim()
+      : undefined,
+    git_branch: isNonEmptyString(configSnapshot.git_branch)
+      ? configSnapshot.git_branch.trim()
+      : undefined,
+    git_token_env_key: isNonEmptyString(configSnapshot.git_token_env_key)
+      ? configSnapshot.git_token_env_key.trim()
+      : undefined,
   };
 }
 
