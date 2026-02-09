@@ -18,6 +18,7 @@ import { apiClient, API_ENDPOINTS } from "@/lib/api-client";
 import { toast } from "sonner";
 import { PanelHeaderAction } from "@/components/shared/panel-header";
 import { useT } from "@/lib/i18n/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FileSidebarProps {
   files: FileNode[];
@@ -39,6 +40,7 @@ function FileTreeItem({
   level?: number;
 }) {
   const [isExpanded, setIsExpanded] = React.useState(level === 0);
+  const isMobile = useIsMobile();
 
   // Check if this node or any of its children is the selected one
   const containsSelected = React.useMemo(() => {
@@ -106,12 +108,45 @@ function FileTreeItem({
   };
   // Keep indentation inside the row box so nested nodes never exceed sidebar width.
   const paddingStartRem = 0.5 + Math.min(level, 12) * 0.5;
+  const iconColorClass =
+    selectedId === node.id
+      ? "text-sidebar-accent-foreground"
+      : "text-sidebar-foreground/70";
+
+  const renderNodeIcon = () => {
+    if (node.type !== "folder") {
+      return getFileIcon(node.name, node.type, iconColorClass);
+    }
+
+    const folderIcon = getFileIcon(node.name, node.type, iconColorClass);
+    const chevronIcon = isExpanded ? (
+      <ChevronDown className={cn("size-4", iconColorClass)} />
+    ) : (
+      <ChevronRight className={cn("size-4", iconColorClass)} />
+    );
+
+    if (isMobile) {
+      return isExpanded ? folderIcon : chevronIcon;
+    }
+
+    return (
+      <span className="relative inline-flex items-center justify-center">
+        <span className="transition-opacity duration-150 group-hover/item:opacity-0">
+          {folderIcon}
+        </span>
+        <span className="absolute inset-0 transition-opacity duration-150 opacity-0 group-hover/item:opacity-100">
+          {chevronIcon}
+        </span>
+      </span>
+    );
+  };
+  const nodeIcon = renderNodeIcon();
 
   return (
     <div className="w-full min-w-0 max-w-full basis-full overflow-hidden">
       <div
         className={cn(
-          "group/item box-border flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded-md py-1.5 transition-colors cursor-pointer",
+          "group/item relative box-border flex w-full min-w-0 max-w-full items-center gap-2 overflow-hidden rounded-md py-1.5 transition-colors cursor-pointer",
           selectedId === node.id
             ? "bg-sidebar-accent text-sidebar-accent-foreground"
             : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
@@ -122,23 +157,7 @@ function FileTreeItem({
         }}
         onClick={handleClick}
       >
-        <div className="shrink-0 w-3 flex items-center justify-center">
-          {node.type === "folder" &&
-            (isExpanded ? (
-              <ChevronDown className="size-3 text-sidebar-foreground/70" />
-            ) : (
-              <ChevronRight className="size-3 text-sidebar-foreground/70" />
-            ))}
-        </div>
-        <span className="shrink-0">
-          {getFileIcon(
-            node.name,
-            node.type,
-            selectedId === node.id
-              ? "text-sidebar-accent-foreground"
-              : "text-sidebar-foreground/70",
-          )}
-        </span>
+        <span className="shrink-0">{nodeIcon}</span>
         <span
           className="block w-0 flex-1 min-w-0 max-w-full truncate text-sm"
           title={node.name}
