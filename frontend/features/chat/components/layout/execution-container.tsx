@@ -65,7 +65,7 @@ export function ExecutionContainer({ sessionId }: ExecutionContainerProps) {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background select-text">
+      <div className="flex items-center justify-center h-dvh bg-background select-text">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/20" />
       </div>
     );
@@ -74,7 +74,7 @@ export function ExecutionContainer({ sessionId }: ExecutionContainerProps) {
   // Error state
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background select-text">
+      <div className="flex items-center justify-center h-dvh bg-background select-text">
         <div className="text-center">
           <p className="text-destructive mb-2">Error loading session</p>
           <p className="text-muted-foreground text-sm">
@@ -116,7 +116,7 @@ export function ExecutionContainer({ sessionId }: ExecutionContainerProps) {
   );
 
   return (
-    <div className="flex h-screen min-h-0 min-w-0 overflow-hidden bg-background select-text">
+    <div className="flex h-dvh min-h-0 min-w-0 overflow-hidden bg-background select-text">
       <ResizablePanelGroup direction="horizontal" className="min-h-0 min-w-0">
         {/* Left panel - Chat with status cards (45%) */}
         <ResizablePanel

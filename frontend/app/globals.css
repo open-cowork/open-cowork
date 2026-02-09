@@ -233,8 +233,6 @@
     @apply bg-background text-foreground select-none;
     letter-spacing: var(--tracking-normal);
     height: 100%;
-    overflow: hidden;
-    position: fixed;
     width: 100%;
   }
 }
