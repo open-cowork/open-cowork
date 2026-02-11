@@ -1,146 +1,117 @@
 import json
-import logging
-from typing import Any
 
+import lark_oapi as lark
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response as FastAPIResponse
 
 from app.core.settings import get_settings
-from app.schemas.im_message import InboundMessage
 from app.schemas.response import Response
+from app.services.feishu_event_dispatcher import FeishuEventDispatcher
 from app.services.inbound_message_service import InboundMessageService
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/webhooks/feishu", tags=["feishu"])
 
 
 @router.post("")
-async def webhook(request: Request):
-    payload = await request.json()
-    if not isinstance(payload, dict):
-        return Response.error(code=400, message="Invalid payload", status_code=400)
-
+async def webhook(request: Request) -> FastAPIResponse:
     settings = get_settings()
 
     if not settings.feishu_enabled:
         return Response.success(data={"ok": True, "ignored": "provider_disabled"})
 
-    # URL verification handshake.
-    if str(payload.get("type") or "") == "url_verification":
-        token = str(payload.get("token") or "")
-        expected = (settings.feishu_verification_token or "").strip()
-        if expected and token != expected:
-            return Response.error(code=403, message="Invalid token", status_code=403)
-        challenge = payload.get("challenge")
-        return JSONResponse(status_code=200, content={"challenge": challenge})
+    body = await request.body()
+    payload = _parse_payload(body)
+    if payload is None:
+        return Response.error(code=400, message="Invalid payload", status_code=400)
 
-    if not _verify_token(
-        payload, expected=(settings.feishu_verification_token or "").strip()
-    ):
-        return Response.error(code=403, message="Invalid token", status_code=403)
-
-    inbound = _parse_feishu_event(payload)
-    if inbound is None:
+    event_type = _extract_event_type(payload)
+    if event_type and event_type not in {"url_verification", "im.message.receive_v1"}:
         return Response.success(data={"ok": True, "ignored": True})
 
+    verification_token = _resolve_verification_token(
+        payload=payload,
+        configured=(settings.feishu_verification_token or "").strip(),
+    )
+    encrypt_key = (settings.feishu_encrypt_key or "").strip()
+
+    dispatcher = FeishuEventDispatcher(
+        verification_token=verification_token,
+        encrypt_key=encrypt_key,
+    )
+    raw_response = dispatcher.dispatch(
+        uri=request.url.path,
+        headers=_build_raw_headers(request),
+        body=body,
+    )
+
+    if raw_response.status_code is not None and raw_response.status_code >= 400:
+        return _to_http_response(raw_response)
+
     service = InboundMessageService()
-    await service.handle_message(message=inbound)
-    return Response.success(data={"ok": True})
+    for inbound in dispatcher.inbound_messages:
+        await service.handle_message(message=inbound)
+
+    return _to_http_response(raw_response)
 
 
-def _verify_token(payload: dict[str, Any], *, expected: str) -> bool:
-    if not expected:
-        return True
+def _parse_payload(body: bytes) -> dict[str, object] | None:
+    try:
+        payload = json.loads(body)
+    except Exception:
+        return None
+    return payload if isinstance(payload, dict) else None
 
-    token_candidates: list[str] = []
-    raw_token = payload.get("token")
-    if isinstance(raw_token, str):
-        token_candidates.append(raw_token)
+
+def _extract_event_type(payload: dict[str, object]) -> str:
+    top_level_type = payload.get("type")
+    if isinstance(top_level_type, str):
+        value = top_level_type.strip()
+        if value:
+            return value
+
+    header = payload.get("header")
+    if isinstance(header, dict):
+        event_type = header.get("event_type")
+        if isinstance(event_type, str):
+            return event_type.strip()
+
+    return ""
+
+
+def _resolve_verification_token(payload: dict[str, object], *, configured: str) -> str:
+    if configured:
+        return configured
+
+    token = payload.get("token")
+    if isinstance(token, str) and token.strip():
+        return token.strip()
 
     header = payload.get("header")
     if isinstance(header, dict):
         header_token = header.get("token")
-        if isinstance(header_token, str):
-            token_candidates.append(header_token)
-
-    return expected in token_candidates
-
-
-def _parse_feishu_event(payload: dict[str, Any]) -> InboundMessage | None:
-    header = payload.get("header")
-    if not isinstance(header, dict):
-        return None
-
-    event_type = str(header.get("event_type") or "")
-    if event_type != "im.message.receive_v1":
-        return None
-
-    event = payload.get("event")
-    if not isinstance(event, dict):
-        return None
-
-    message = event.get("message")
-    if not isinstance(message, dict):
-        return None
-
-    message_type = str(message.get("message_type") or "")
-    if message_type != "text":
-        return None
-
-    content = message.get("content")
-    text = _extract_feishu_text(content)
-    if not text:
-        return None
-
-    chat_id = str(message.get("chat_id") or "").strip()
-    if not chat_id:
-        return None
-
-    message_id = str(message.get("message_id") or header.get("event_id") or "").strip()
-
-    sender_id = None
-    sender = event.get("sender")
-    if isinstance(sender, dict):
-        sender_id_obj = sender.get("sender_id")
-        if isinstance(sender_id_obj, dict):
-            raw_sender_id = (
-                sender_id_obj.get("open_id")
-                or sender_id_obj.get("union_id")
-                or sender_id_obj.get("user_id")
-            )
-            if raw_sender_id:
-                sender_id = str(raw_sender_id)
-
-    return InboundMessage(
-        provider="feishu",
-        destination=chat_id,
-        send_address=chat_id,
-        message_id=message_id,
-        sender_id=sender_id,
-        text=text,
-        raw=payload,
-    )
-
-
-def _extract_feishu_text(content: Any) -> str:
-    if isinstance(content, str):
-        raw = content.strip()
-        if not raw:
-            return ""
-        try:
-            parsed = json.loads(raw)
-        except Exception:
-            return raw
-        if isinstance(parsed, dict):
-            val = parsed.get("text")
-            if isinstance(val, str):
-                return val.strip()
-        return raw
-
-    if isinstance(content, dict):
-        val = content.get("text")
-        if isinstance(val, str):
-            return val.strip()
+        if isinstance(header_token, str) and header_token.strip():
+            return header_token.strip()
 
     return ""
+
+
+def _build_raw_headers(request: Request) -> dict[str, str]:
+    headers = {key: value for key, value in request.headers.items()}
+    for key in (
+        lark.X_REQUEST_ID,
+        lark.LARK_REQUEST_TIMESTAMP,
+        lark.LARK_REQUEST_NONCE,
+        lark.LARK_REQUEST_SIGNATURE,
+    ):
+        value = request.headers.get(key)
+        if value:
+            headers[key] = value
+    return headers
+
+
+def _to_http_response(raw_response: lark.RawResponse) -> FastAPIResponse:
+    return FastAPIResponse(
+        status_code=raw_response.status_code or 200,
+        headers=raw_response.headers,
+        content=raw_response.content or b"",
+    )

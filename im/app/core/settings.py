@@ -53,6 +53,7 @@ class Settings(BaseSettings):
     feishu_verification_token: str | None = Field(
         default=None, alias="FEISHU_VERIFICATION_TOKEN"
     )
+    feishu_encrypt_key: str | None = Field(default=None, alias="FEISHU_ENCRYPT_KEY")
     feishu_open_base_url: str = Field(
         default="https://open.feishu.cn",
         alias="FEISHU_OPEN_BASE_URL",
