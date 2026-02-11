@@ -56,7 +56,7 @@ export function McpSettingsDialog({
       <CapabilityDialogContent
         title={t("mcpSettings.configureServer")}
         size="md"
-        bodyClassName="space-y-6 bg-background px-6 py-6"
+        bodyClassName="flex h-full min-h-0 flex-col overflow-hidden bg-background px-6 py-6"
         footer={
           <DialogFooter className="grid grid-cols-2 gap-2">
             <Button variant="outline" onClick={onClose} className="w-full">
@@ -87,30 +87,28 @@ export function McpSettingsDialog({
           </DialogFooter>
         }
       >
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {t("mcpSettings.mcpName")}{" "}
-                <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                value={name}
-                disabled={!isNew}
-                onChange={(e) => setName(e.target.value)}
-                className="bg-muted/50 font-mono text-sm"
-              />
-            </div>
+        <div className="flex h-full min-h-0 flex-col gap-6">
+          <div className="space-y-2">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              {t("mcpSettings.mcpName")}{" "}
+              <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              value={name}
+              disabled={!isNew}
+              onChange={(e) => setName(e.target.value)}
+              className="bg-muted/50 font-mono text-sm"
+            />
           </div>
 
-          <div className="space-y-2">
+          <div className="flex min-h-0 flex-1 flex-col gap-2">
             <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               {t("mcpSettings.fullJsonConfig")}
             </Label>
             <Textarea
               value={jsonConfig}
               onChange={(e) => setJsonConfig(e.target.value)}
-              className="font-mono text-sm bg-muted/50 resize-none p-4 h-[350px]"
+              className="h-full min-h-0 flex-1 resize-none bg-muted/50 p-4 font-mono text-sm"
               spellCheck={false}
             />
           </div>

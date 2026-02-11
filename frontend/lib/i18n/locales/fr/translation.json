@@ -1145,7 +1145,7 @@
   "mcpSettings": {
     "configureServer": "Configurer le serveur MCP",
     "fullJsonConfig": "Configuration JSON complète",
-    "mcpName": "Nom MCP <span class=\"text-destructive\">*</span>",
+    "mcpName": "Nom MCP",
     "jsonConfig": "Configuration JSON complète"
   },
   "queryActions": {

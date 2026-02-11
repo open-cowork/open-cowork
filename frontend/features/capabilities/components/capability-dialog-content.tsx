@@ -61,10 +61,10 @@ export function CapabilityDialogContent({
     ...(style as DialogContentCSSVars),
     "--dialog-mobile-max-h": resolvedMobileMaxHeight,
     "--dialog-desktop-max-h": resolvedDesktopMaxHeight,
-    "--dialog-mobile-max": "80dvw",
+    "--dialog-mobile-max": "64dvw",
     "--dialog-max-w": resolvedMaxWidth,
-    width: "auto",
-    maxWidth: "min(80dvw, var(--dialog-max-w))",
+    width: "min(var(--dialog-mobile-max), var(--dialog-max-w))",
+    maxWidth: "min(var(--dialog-mobile-max), var(--dialog-max-w))",
   };
 
   return (

@@ -1145,7 +1145,7 @@
   "mcpSettings": {
     "configureServer": "MCPサーバーを設定",
     "fullJsonConfig": "完全なJSON設定",
-    "mcpName": "MCP名 <span class=\"text-destructive\">*</span>",
+    "mcpName": "MCP名",
     "jsonConfig": "完全なJSON設定"
   },
   "queryActions": {

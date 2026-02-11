@@ -1258,7 +1258,7 @@
     "turnOffAll": "全部关闭"
   },
   "mcpSettings": {
-    "mcpName": "MCP 名称 <span class=\"text-destructive\">*</span>",
+    "mcpName": "MCP 名称",
     "jsonConfig": "完整的 JSON 配置",
     "configureServer": "配置 MCP 服务器",
     "fullJsonConfig": "完整的 JSON 配置"
