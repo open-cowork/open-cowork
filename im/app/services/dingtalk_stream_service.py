@@ -149,8 +149,8 @@ class DingTalkStreamService:
         self._enabled = bool(
             settings.dingtalk_enabled and settings.dingtalk_stream_enabled
         )
-        self._client_id = (settings.dingtalk_app_key or "").strip()
-        self._client_secret = (settings.dingtalk_app_secret or "").strip()
+        self._client_id = (settings.dingtalk_client_id or "").strip()
+        self._client_secret = (settings.dingtalk_client_secret or "").strip()
         self._subscribe_events = bool(settings.dingtalk_stream_subscribe_events)
 
         self._inbound_service = InboundMessageService()

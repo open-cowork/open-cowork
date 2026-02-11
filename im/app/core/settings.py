@@ -64,9 +64,11 @@ class Settings(BaseSettings):
     dingtalk_stream_subscribe_events: bool = Field(
         default=False, alias="DINGTALK_STREAM_SUBSCRIBE_EVENTS"
     )
-    # DingTalk OpenAPI (required for proactive messages via conversationId)
-    dingtalk_app_key: str | None = Field(default=None, alias="DINGTALK_APP_KEY")
-    dingtalk_app_secret: str | None = Field(default=None, alias="DINGTALK_APP_SECRET")
+    # DingTalk OpenAPI / Stream credentials.
+    dingtalk_client_id: str | None = Field(default=None, alias="DINGTALK_CLIENT_ID")
+    dingtalk_client_secret: str | None = Field(
+        default=None, alias="DINGTALK_CLIENT_SECRET"
+    )
     dingtalk_robot_code: str | None = Field(default=None, alias="DINGTALK_ROBOT_CODE")
     dingtalk_open_base_url: str = Field(
         default="https://api.dingtalk.com",

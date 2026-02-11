@@ -20,13 +20,13 @@ class DingTalkClient:
         self._enabled = bool(settings.dingtalk_enabled)
         self._fallback_webhook = (settings.dingtalk_webhook_url or "").strip()
         self._open_base_url = (settings.dingtalk_open_base_url or "").rstrip("/")
-        self._app_key = (settings.dingtalk_app_key or "").strip()
-        self._app_secret = (settings.dingtalk_app_secret or "").strip()
+        self._client_id = (settings.dingtalk_client_id or "").strip()
+        self._client_secret = (settings.dingtalk_client_secret or "").strip()
         self._robot_code = (settings.dingtalk_robot_code or "").strip()
         self._openapi_enabled = bool(
             self._open_base_url
-            and self._app_key
-            and self._app_secret
+            and self._client_id
+            and self._client_secret
             and self._robot_code
         )
         self._token_lock = asyncio.Lock()
@@ -42,9 +42,10 @@ class DingTalkClient:
             raise RuntimeError("DingTalk OpenAPI is not configured")
 
         url = f"{self._open_base_url}/v1.0/oauth2/accessToken"
+        # DingTalk OpenAPI uses appKey/appSecret field names in payload.
         payload = {
-            "appKey": self._app_key,
-            "appSecret": self._app_secret,
+            "appKey": self._client_id,
+            "appSecret": self._client_secret,
         }
         async with httpx.AsyncClient(
             timeout=httpx.Timeout(10.0, connect=5.0)
