@@ -59,6 +59,7 @@ export function ChatContainer({ taskId, isNewChat }: ChatContainerProps) {
       <ChatMessageList
         messages={session?.messages || []}
         isTyping={isSending}
+        sessionStatus={session?.status}
       />
       <ChatInput
         value={inputValue}

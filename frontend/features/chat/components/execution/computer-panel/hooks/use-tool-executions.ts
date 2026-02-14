@@ -25,6 +25,7 @@ export function useToolExecutions({
   const lastSessionIdRef = useRef<string | null>(null);
   const hasLoadedOnceRef = useRef(false);
   const requestSeqRef = useRef(0);
+  const prevIsActiveRef = useRef(isActive);
 
   const fetchOnce = useCallback(
     async (replace = false) => {
@@ -96,6 +97,17 @@ export function useToolExecutions({
     }, pollingIntervalMs);
     return () => clearInterval(id);
   }, [fetchOnce, isActive, pollingIntervalMs, sessionId]);
+
+  // When a session transitions from active -> terminal, fetch once more so the UI
+  // can pick up the final tool_output written during cancellation/failure.
+  useEffect(() => {
+    if (!sessionId) return;
+    const wasActive = prevIsActiveRef.current;
+    prevIsActiveRef.current = isActive;
+    if (wasActive && !isActive) {
+      void fetchOnce(true);
+    }
+  }, [fetchOnce, isActive, sessionId]);
 
   return {
     executions,

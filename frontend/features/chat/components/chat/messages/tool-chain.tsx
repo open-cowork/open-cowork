@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 interface ToolChainProps {
   blocks: (ToolUseBlock | ToolResultBlock)[];
   variant?: "tool" | "subagent";
+  sessionStatus?: string;
 }
 
 interface ToolStepProps {
@@ -266,9 +267,38 @@ function ToolStep({ toolUse, toolResult, isOpen, onToggle }: ToolStepProps) {
   );
 }
 
-export function ToolChain({ blocks, variant = "tool" }: ToolChainProps) {
+export function ToolChain({
+  blocks,
+  variant = "tool",
+  sessionStatus,
+}: ToolChainProps) {
   const { t } = useT("translation");
   const [openStepId, setOpenStepId] = React.useState<string | null>(null);
+
+  const normalizedSessionStatus = (sessionStatus || "").trim().toLowerCase();
+  const isTerminalSession = [
+    "completed",
+    "failed",
+    "canceled",
+    "cancelled",
+    "stopped",
+  ].includes(normalizedSessionStatus);
+
+  const terminalToolResultText = React.useMemo(() => {
+    if (normalizedSessionStatus === "failed") return t("status.failed");
+    if (
+      normalizedSessionStatus === "canceled" ||
+      normalizedSessionStatus === "cancelled"
+    ) {
+      return t("status.canceled");
+    }
+    return t("status.completed");
+  }, [normalizedSessionStatus, t]);
+
+  const terminalToolResultIsError = React.useMemo(() => {
+    if (!isTerminalSession) return false;
+    return normalizedSessionStatus !== "completed";
+  }, [isTerminalSession, normalizedSessionStatus]);
 
   // Group blocks into steps (Use + Result pair)
   const steps = React.useMemo(() => {
@@ -290,12 +320,34 @@ export function ToolChain({ blocks, variant = "tool" }: ToolChainProps) {
         }
       }
     }
+
+    // If the session is already terminal (canceled/failed/completed), treat any
+    // tool calls without a ToolResultBlock as ended so the UI doesn't keep
+    // showing a spinner forever.
+    if (isTerminalSession) {
+      for (const step of result) {
+        if (step.result) continue;
+        step.result = {
+          _type: "ToolResultBlock",
+          tool_use_id: step.use.id,
+          content: terminalToolResultText,
+          is_error: terminalToolResultIsError,
+        };
+      }
+    }
+
     return result;
-  }, [blocks]);
+  }, [
+    blocks,
+    isTerminalSession,
+    terminalToolResultIsError,
+    terminalToolResultText,
+  ]);
   const isSubagentChain =
     variant === "subagent" || steps.every(isTaskSubagentStep);
 
   const isRunning = steps.some((s) => !s.result);
+  const hasError = steps.some((s) => !!s.result?.is_error);
   // Initialize open if running, closed if completed (history)
   const [isExpanded, setIsExpanded] = React.useState(isRunning);
   const prevIsRunning = React.useRef(isRunning);
@@ -346,6 +398,8 @@ export function ToolChain({ blocks, variant = "tool" }: ToolChainProps) {
               {/* Just show one badge to indicate status if not expanded */}
               {isRunning ? (
                 <Loader2 className="size-3 animate-spin text-primary" />
+              ) : hasError ? (
+                <XCircle className="size-3 text-destructive" />
               ) : (
                 <CheckCircle2 className="size-3 text-success" />
               )}

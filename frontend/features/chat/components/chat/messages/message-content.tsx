@@ -32,8 +32,10 @@ const ImgBlock = ({
 
 export function MessageContent({
   content,
+  sessionStatus,
 }: {
   content: string | MessageBlock[];
+  sessionStatus?: string;
 }) {
   const { t } = useT("translation");
 
@@ -178,6 +180,7 @@ export function MessageContent({
               key={index}
               blocks={group.blocks as (ToolUseBlock | ToolResultBlock)[]}
               variant={group.type}
+              sessionStatus={sessionStatus}
             />
           );
         } else if (group.type === "thinking") {

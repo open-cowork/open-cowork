@@ -15,6 +15,7 @@ import { useT } from "@/lib/i18n/client";
 interface AssistantMessageProps {
   message: ChatMessage;
   runUsage?: UsageResponse | null;
+  sessionStatus?: string;
 }
 
 function pickNumber(value: unknown): number | null {
@@ -35,7 +36,11 @@ function formatDurationMs(value: number | null | undefined): string | null {
   return seconds >= 60 ? `${Math.round(seconds)}s` : `${seconds.toFixed(1)}s`;
 }
 
-export function AssistantMessage({ message, runUsage }: AssistantMessageProps) {
+export function AssistantMessage({
+  message,
+  runUsage,
+  sessionStatus,
+}: AssistantMessageProps) {
   const { t } = useT("translation");
   const [isCopied, setIsCopied] = React.useState(false);
   const [isLiked, setIsLiked] = React.useState(false);
@@ -129,7 +134,10 @@ export function AssistantMessage({ message, runUsage }: AssistantMessageProps) {
       </div>
 
       <div className="mt-2 w-full min-w-0 overflow-hidden break-words text-base text-foreground [overflow-wrap:anywhere]">
-        <MessageContent content={message.content} />
+        <MessageContent
+          content={message.content}
+          sessionStatus={sessionStatus}
+        />
         {message.status === "streaming" && <TypingIndicator />}
       </div>
 

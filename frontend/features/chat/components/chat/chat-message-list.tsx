@@ -12,6 +12,7 @@ import { useT } from "@/lib/i18n/client";
 export interface ChatMessageListProps {
   messages: ChatMessage[];
   isTyping?: boolean;
+  sessionStatus?: string;
   repoUrl?: string | null;
   gitBranch?: string | null;
   internalContextsByUserMessageId?: Record<string, string[]>;
@@ -22,6 +23,7 @@ export interface ChatMessageListProps {
 export function ChatMessageList({
   messages,
   isTyping,
+  sessionStatus,
   repoUrl,
   gitBranch,
   internalContextsByUserMessageId,
@@ -288,6 +290,7 @@ export function ChatMessageList({
                 key={message.id}
                 message={message}
                 runUsage={runUsage}
+                sessionStatus={sessionStatus}
               />
             );
           })}
@@ -300,6 +303,7 @@ export function ChatMessageList({
                 status: "streaming",
                 timestamp: new Date().toISOString(),
               }}
+              sessionStatus={sessionStatus}
             />
           )}
           <div ref={scrollRef} />
