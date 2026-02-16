@@ -17,6 +17,7 @@ from app.services.attachment_stager import AttachmentStager
 from app.services.claude_md_stager import ClaudeMdStager
 from app.services.slash_command_stager import SlashCommandStager
 from app.services.sub_agent_stager import SubAgentStager
+from app.services.workspace_manager import WorkspaceManager
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ class RunPullService:
         self.claude_md_stager = ClaudeMdStager()
         self.slash_command_stager = SlashCommandStager()
         self.subagent_stager = SubAgentStager()
+        self.workspace_manager = WorkspaceManager()
 
         self.worker_id = f"{socket.gethostname()}:{os.getpid()}"
         self._semaphore = asyncio.Semaphore(self.settings.max_concurrent_tasks)
@@ -192,10 +194,20 @@ class RunPullService:
         config_snapshot = claim.get("config_snapshot") or {}
         sdk_session_id = None if scheduled_task_id else claim.get("sdk_session_id")
         permission_mode = str(run.get("permission_mode") or "default").strip()
+        workspace_scope = str(run.get("workspace_scope") or "").strip() or "session"
+        workspace_ref_id = str(run.get("workspace_ref_id") or "").strip()
 
         if not run_id or not session_id or not user_id or not prompt:
             logger.error(f"Invalid claim payload: {claim}")
             return
+
+        if workspace_scope not in {"session", "scheduled_task", "project"}:
+            workspace_scope = "session"
+        if workspace_scope == "session":
+            workspace_ref_id = session_id
+        if not workspace_ref_id:
+            workspace_scope = "session"
+            workspace_ref_id = session_id
 
         container_mode = config_snapshot.get("container_mode", "ephemeral")
         container_id = config_snapshot.get("container_id")
@@ -205,9 +217,22 @@ class RunPullService:
             "run_id": str(run_id),
             "session_id": session_id,
             "user_id": user_id,
+            "workspace_scope": workspace_scope,
+            "workspace_ref_id": workspace_ref_id,
         }
 
         try:
+            # Prepare session workspace binding early so all subsequent staging and container mounts
+            # use the correct (possibly shared) workspace directory.
+            self.workspace_manager.get_workspace_path(
+                user_id=user_id,
+                session_id=session_id,
+                create=True,
+                workspace_scope=workspace_scope,
+                workspace_ref_id=workspace_ref_id,
+                clear_inputs=workspace_scope in {"scheduled_task", "project"},
+            )
+
             step_started = time.perf_counter()
             resolved_config = await self.config_resolver.resolve(
                 user_id,
@@ -363,6 +388,8 @@ class RunPullService:
                 browser_enabled=browser_enabled,
                 container_mode=container_mode,
                 container_id=container_id,
+                workspace_scope=workspace_scope,
+                workspace_ref_id=workspace_ref_id,
             )
             logger.info(
                 "timing",

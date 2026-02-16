@@ -36,6 +36,8 @@ class ContainerPool:
         browser_enabled: bool = False,
         container_mode: str = "ephemeral",
         container_id: str | None = None,
+        workspace_scope: str | None = None,
+        workspace_ref_id: str | None = None,
     ) -> tuple[str, str]:
         """Get or create container.
 
@@ -133,6 +135,8 @@ class ContainerPool:
         workspace_volume = self.workspace_manager.get_workspace_volume(
             user_id=user_id,
             session_id=session_id,
+            workspace_scope=workspace_scope,
+            workspace_ref_id=workspace_ref_id,
         )
         logger.info(
             "timing",

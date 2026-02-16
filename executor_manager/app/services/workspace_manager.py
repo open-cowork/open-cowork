@@ -3,6 +3,7 @@ import logging
 import mimetypes
 import shutil
 import tarfile
+import time
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -22,6 +23,8 @@ class WorkspaceMeta:
     status: Literal["active", "archived", "deleted"]
     container_mode: Literal["ephemeral", "persistent"]
     workspace_path: str
+    workspace_scope: str = "session"
+    workspace_ref_id: str = ""
     size_bytes: int = 0
 
     def to_dict(self) -> dict[str, str | int]:
@@ -34,6 +37,7 @@ class WorkspaceManager:
     active_dir: Path
     archive_dir: Path
     temp_dir: Path
+    shared_dir: Path
 
     def __init__(self):
         self.settings = get_settings()
@@ -41,6 +45,7 @@ class WorkspaceManager:
         self.active_dir = self.base_dir / "active"
         self.archive_dir = self.base_dir / "archive"
         self.temp_dir = self.base_dir / "temp"
+        self.shared_dir = self.base_dir / "shared"
         self.ignore_dot_files = self.settings.workspace_ignore_dot_files
 
         self._init_directories()
@@ -64,15 +69,142 @@ class WorkspaceManager:
 
     def _init_directories(self) -> None:
         """Initialize directory structure."""
-        for directory in [self.active_dir, self.archive_dir, self.temp_dir]:
+        for directory in [
+            self.active_dir,
+            self.archive_dir,
+            self.temp_dir,
+            self.shared_dir,
+        ]:
             directory.mkdir(parents=True, exist_ok=True)
             logger.debug("workspace_dir_ready", extra={"path": str(directory)})
+
+    @staticmethod
+    def _normalize_workspace_binding(
+        session_id: str,
+        *,
+        requested_scope: str | None,
+        requested_ref_id: str | None,
+        existing_meta: WorkspaceMeta | None,
+    ) -> tuple[str, str]:
+        """Resolve effective (workspace_scope, workspace_ref_id) for a session."""
+        scope = (requested_scope or "").strip()
+        ref_id = (requested_ref_id or "").strip()
+
+        if not scope and existing_meta:
+            scope = (getattr(existing_meta, "workspace_scope", "") or "").strip()
+            ref_id = (getattr(existing_meta, "workspace_ref_id", "") or "").strip()
+
+        if not scope:
+            scope = "session"
+
+        if scope not in {"session", "scheduled_task", "project"}:
+            scope = "session"
+
+        # Always pin session scope to the session id.
+        if scope == "session":
+            return "session", session_id
+
+        # Shared scopes require a stable ref id. Fall back to per-session workspace if absent.
+        if not ref_id:
+            return "session", session_id
+
+        return scope, ref_id
+
+    def _shared_workspace_dir(
+        self, *, user_id: str, workspace_scope: str, workspace_ref_id: str
+    ) -> Path:
+        key = f"{workspace_scope}-{workspace_ref_id}"
+        return self.shared_dir / user_id / key / "workspace"
+
+    def _ensure_workspace_link(
+        self,
+        *,
+        session_dir: Path,
+        user_id: str,
+        session_id: str,
+        workspace_scope: str,
+        workspace_ref_id: str,
+    ) -> Path:
+        """Ensure session_dir/workspace points to the effective workspace directory.
+
+        Returns:
+            The real workspace directory path (not the link path).
+        """
+        link_path = session_dir / "workspace"
+
+        if workspace_scope == "session":
+            # Legacy: workspace lives under the session directory.
+            if link_path.is_symlink():
+                try:
+                    link_path.unlink()
+                except Exception:
+                    pass
+            link_path.mkdir(exist_ok=True)
+            return link_path.resolve()
+
+        target = self._shared_workspace_dir(
+            user_id=user_id,
+            workspace_scope=workspace_scope,
+            workspace_ref_id=workspace_ref_id,
+        )
+        target.mkdir(parents=True, exist_ok=True)
+
+        if link_path.exists() or link_path.is_symlink():
+            if link_path.is_symlink():
+                try:
+                    if link_path.resolve() == target.resolve():
+                        return target.resolve()
+                except Exception:
+                    pass
+                try:
+                    link_path.unlink()
+                except Exception:
+                    pass
+            elif link_path.is_dir():
+                try:
+                    has_entries = any(link_path.iterdir())
+                except Exception:
+                    has_entries = True
+                if not has_entries:
+                    shutil.rmtree(link_path, ignore_errors=True)
+                else:
+                    suffix = int(time.time())
+                    backup = session_dir / f"workspace.local-{suffix}"
+                    try:
+                        link_path.rename(backup)
+                    except Exception:
+                        # As a last resort, keep the existing directory.
+                        return link_path.resolve()
+            else:
+                try:
+                    link_path.unlink()
+                except Exception:
+                    pass
+
+        try:
+            link_path.symlink_to(target)
+        except Exception:
+            # Fallback: if symlink fails (e.g. permissions), use the target dir directly.
+            return target.resolve()
+
+        return target.resolve()
+
+    @staticmethod
+    def _clear_inputs_dir(workspace_dir: Path) -> None:
+        inputs_dir = workspace_dir / "inputs"
+        if inputs_dir.exists():
+            shutil.rmtree(inputs_dir, ignore_errors=True)
+        inputs_dir.mkdir(parents=True, exist_ok=True)
 
     def get_workspace_path(
         self,
         user_id: str,
         session_id: str,
         create: bool = True,
+        *,
+        workspace_scope: str | None = None,
+        workspace_ref_id: str | None = None,
+        clear_inputs: bool = False,
     ) -> Path:
         """Get workspace path."""
         user_dir = self.active_dir / user_id
@@ -82,10 +214,33 @@ class WorkspaceManager:
             user_dir.mkdir(parents=True, exist_ok=True)
             session_dir.mkdir(exist_ok=True)
 
-            (session_dir / "workspace").mkdir(exist_ok=True)
             (session_dir / "logs").mkdir(exist_ok=True)
 
-            self._write_meta(session_dir, user_id, session_id)
+            meta = self.get_meta(user_id, session_id)
+            effective_scope, effective_ref = self._normalize_workspace_binding(
+                session_id,
+                requested_scope=workspace_scope,
+                requested_ref_id=workspace_ref_id,
+                existing_meta=meta,
+            )
+            workspace_dir = self._ensure_workspace_link(
+                session_dir=session_dir,
+                user_id=user_id,
+                session_id=session_id,
+                workspace_scope=effective_scope,
+                workspace_ref_id=effective_ref,
+            )
+
+            if clear_inputs and effective_scope in {"scheduled_task", "project"}:
+                self._clear_inputs_dir(workspace_dir)
+
+            self._write_meta(
+                session_dir,
+                user_id,
+                session_id,
+                workspace_scope=effective_scope,
+                workspace_ref_id=effective_ref,
+            )
 
         return session_dir
 
@@ -227,6 +382,8 @@ class WorkspaceManager:
         session_id: str,
         task_id: str = "",
         container_mode: Literal["ephemeral", "persistent"] = "ephemeral",
+        workspace_scope: str = "session",
+        workspace_ref_id: str = "",
     ) -> None:
         """Write metadata file."""
         meta = WorkspaceMeta(
@@ -237,6 +394,8 @@ class WorkspaceManager:
             status="active",
             container_mode=container_mode,
             workspace_path=str(session_dir / "workspace"),
+            workspace_scope=workspace_scope,
+            workspace_ref_id=workspace_ref_id,
         )
 
         meta_file = session_dir / "meta.json"
@@ -255,6 +414,8 @@ class WorkspaceManager:
 
         try:
             data = json.loads(meta_file.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                return None
             return WorkspaceMeta(**data)
         except Exception as e:
             logger.error(f"Failed to read meta file {meta_file}: {e}")
@@ -275,10 +436,25 @@ class WorkspaceManager:
                 json.dumps(meta.to_dict(), indent=2), encoding="utf-8"
             )
 
-    def get_workspace_volume(self, user_id: str, session_id: str) -> str:
-        """Get container mount path."""
-        workspace_dir = self.get_workspace_path(user_id, session_id, create=True)
-        return str(workspace_dir / "workspace")
+    def get_workspace_volume(
+        self,
+        user_id: str,
+        session_id: str,
+        *,
+        workspace_scope: str | None = None,
+        workspace_ref_id: str | None = None,
+        clear_inputs: bool = False,
+    ) -> str:
+        """Get container mount path (real path, resolving shared workspace symlinks)."""
+        session_dir = self.get_workspace_path(
+            user_id,
+            session_id,
+            create=True,
+            workspace_scope=workspace_scope,
+            workspace_ref_id=workspace_ref_id,
+            clear_inputs=clear_inputs,
+        )
+        return str((session_dir / "workspace").resolve())
 
     def archive_workspace(
         self,
