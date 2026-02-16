@@ -31,6 +31,7 @@
   "header": {
     "workspace": "Poco 1.0",
     "switchWorkspace": "Changer d'espace de travail",
+    "switchModel": "Changer de modèle",
     "notifications": "Notifications",
     "more": "Plus",
     "repoLink": "Dépôt du projet",
@@ -1301,6 +1302,7 @@
     "skillsManagement": "Gestion des compétences"
   },
   "models": {
+    "defaultTag": "Par défaut",
     "claudeSonnet45": {
       "description": "Équilibrer vitesse et intelligence"
     },

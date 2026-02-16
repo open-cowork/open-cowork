@@ -17,6 +17,10 @@ import { toast } from "sonner";
 import type { TaskConfig } from "@/features/chat/types/api/session";
 import { TaskEntrySection } from "@/features/home/components/task-entry-section";
 import { useComposerModeHotkeys } from "@/features/home/hooks/use-composer-mode-hotkeys";
+import { modelConfigService } from "@/features/home/services/model-config-service";
+import type { ModelConfigResponse } from "@/features/chat/types";
+
+const MODEL_STORAGE_KEY = "poco_selected_model";
 
 export function HomePageClient() {
   const { t } = useT("translation");
@@ -29,8 +33,68 @@ export function HomePageClient() {
   const [mode, setMode] = React.useState<ComposerMode>("task");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
+  const [modelConfig, setModelConfig] =
+    React.useState<ModelConfigResponse | null>(null);
+  const [selectedModel, setSelectedModel] = React.useState<string | null>(null);
+
   useAutosizeTextarea(textareaRef, inputValue);
   useComposerModeHotkeys({ textareaRef, setMode });
+
+  React.useEffect(() => {
+    let active = true;
+    modelConfigService
+      .get()
+      .then((cfg) => {
+        if (!active) return;
+        setModelConfig(cfg);
+      })
+      .catch((error) => {
+        console.error("[Home] Failed to load model config:", error);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const defaultModel = (modelConfig?.default_model || "").trim();
+    if (!defaultModel) return;
+
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem(MODEL_STORAGE_KEY);
+    } catch {
+      saved = null;
+    }
+
+    const cleaned = (saved || "").trim();
+    if (!cleaned || cleaned === defaultModel) {
+      setSelectedModel(null);
+      return;
+    }
+
+    const allowed = new Set(
+      (modelConfig?.model_list || [])
+        .map((m) => (m || "").trim())
+        .filter(Boolean),
+    );
+    setSelectedModel(allowed.has(cleaned) ? cleaned : null);
+  }, [modelConfig]);
+
+  const handleSelectModel = React.useCallback((model: string | null) => {
+    const cleaned = (model || "").trim();
+    const next = cleaned ? cleaned : null;
+    setSelectedModel(next);
+    try {
+      if (!next) {
+        localStorage.removeItem(MODEL_STORAGE_KEY);
+      } else {
+        localStorage.setItem(MODEL_STORAGE_KEY, next);
+      }
+    } catch {
+      // Ignore storage failures (e.g., privacy mode).
+    }
+  }, []);
 
   // Determine if connectors bar should be expanded
   const shouldExpandConnectors = isInputFocused || inputValue.trim().length > 0;
@@ -60,6 +124,9 @@ export function HomePageClient() {
       try {
         // Build config object (shared by plan/task, and also used to pin scheduled task config)
         const config: TaskConfig & Record<string, unknown> = {};
+        if (selectedModel) {
+          config.model = selectedModel;
+        }
         if (inputFiles.length > 0) {
           config.input_files = inputFiles;
         }
@@ -177,12 +244,27 @@ export function HomePageClient() {
         setIsSubmitting(false);
       }
     },
-    [addProject, addTask, inputValue, isSubmitting, lng, mode, router, t],
+    [
+      addProject,
+      addTask,
+      inputValue,
+      isSubmitting,
+      lng,
+      mode,
+      router,
+      selectedModel,
+      t,
+    ],
   );
 
   return (
     <div className="flex flex-1 flex-col min-h-0">
-      <HomeHeader onOpenSettings={openSettings} />
+      <HomeHeader
+        onOpenSettings={openSettings}
+        modelConfig={modelConfig}
+        selectedModel={selectedModel}
+        onSelectModel={handleSelectModel}
+      />
 
       <TaskEntrySection
         title={t("hero.title")}

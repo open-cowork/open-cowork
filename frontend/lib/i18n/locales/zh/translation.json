@@ -32,6 +32,7 @@
   "header": {
     "workspace": "Poco 1.0",
     "switchWorkspace": "切换工作区",
+    "switchModel": "切换模型",
     "notifications": "通知",
     "more": "更多",
     "repoLink": "项目仓库",
@@ -1416,6 +1417,7 @@
     "skillsManagement": "Skills 管理"
   },
   "models": {
+    "defaultTag": "默认",
     "claudeSonnet45": {
       "description": "平衡速度和智能"
     },

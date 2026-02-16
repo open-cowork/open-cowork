@@ -93,6 +93,9 @@ function parseConfigSnapshot(
       typeof configSnapshot.browser_enabled === "boolean"
         ? configSnapshot.browser_enabled
         : undefined,
+    model: isNonEmptyString(configSnapshot.model)
+      ? configSnapshot.model.trim()
+      : undefined,
     repo_url: isNonEmptyString(configSnapshot.repo_url)
       ? configSnapshot.repo_url.trim()
       : undefined,

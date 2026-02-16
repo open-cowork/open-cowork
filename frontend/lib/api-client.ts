@@ -32,6 +32,9 @@ export const API_ENDPOINTS = {
   // Tasks
   tasks: "/tasks",
 
+  // Models
+  models: "/models",
+
   // Runs
   runsBySession: (sessionId: string) => `/runs/session/${sessionId}`,
 

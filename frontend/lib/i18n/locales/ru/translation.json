@@ -31,6 +31,7 @@
   "header": {
     "workspace": "Poco 1.0",
     "switchWorkspace": "Переключить рабочее пространство",
+    "switchModel": "Выбрать модель",
     "notifications": "Уведомления",
     "more": "Ещё",
     "repoLink": "Репозиторий проекта",
@@ -1301,6 +1302,7 @@
     "skillsManagement": "Управление навыками"
   },
   "models": {
+    "defaultTag": "По умолчанию",
     "claudeSonnet45": {
       "description": "Баланс скорости и интеллекта"
     },

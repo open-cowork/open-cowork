@@ -32,6 +32,7 @@
   "header": {
     "workspace": "Poco 1.0",
     "switchWorkspace": "Switch workspace",
+    "switchModel": "Switch model",
     "notifications": "Notifications",
     "more": "More",
     "repoLink": "Project repository",
@@ -1416,6 +1417,7 @@
     "skillsManagement": "Skills management"
   },
   "models": {
+    "defaultTag": "Default",
     "claudeSonnet45": {
       "description": "Balance speed and intelligence"
     },

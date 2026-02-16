@@ -31,6 +31,7 @@
   "header": {
     "workspace": "Poco 1.0",
     "switchWorkspace": "ワークスペースを切り替え",
+    "switchModel": "モデルを切り替え",
     "notifications": "通知",
     "more": "その他",
     "repoLink": "プロジェクトリポジトリ",
@@ -1301,6 +1302,7 @@
     "skillsManagement": "スキル管理"
   },
   "models": {
+    "defaultTag": "デフォルト",
     "claudeSonnet45": {
       "description": "速度と知性のバランス"
     },
