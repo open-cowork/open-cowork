@@ -14,7 +14,7 @@ import type {
 } from "@/features/home/components/task-composer";
 
 import { ProjectHeader } from "@/features/projects/components/project-header";
-import { QUICK_ACTIONS } from "@/features/home/model/constants";
+import { QUICK_ACTIONS } from "@/features/home/constants/constants";
 import { useAppShell } from "@/components/shared/app-shell-context";
 import { scheduledTasksService } from "@/features/scheduled-tasks/services/scheduled-tasks-service";
 import { toast } from "sonner";

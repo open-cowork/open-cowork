@@ -1,7 +1,7 @@
 import { Shield, Globe, Info, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { Connector } from "../../model/connectors";
+import type { Connector } from "../../constants/connectors";
 import { useT } from "@/lib/i18n/client";
 
 interface ConnectorCardProps {

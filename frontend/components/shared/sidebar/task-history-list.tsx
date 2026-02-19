@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/sidebar";
 import { RenameTaskDialog } from "@/features/projects/components/rename-task-dialog";
 
-import { TASK_STATUS_META } from "@/features/home/model/constants";
+import { TASK_STATUS_META } from "@/features/home/constants/constants";
 import type { TaskHistoryItem } from "@/features/projects/types";
 import {
   SIDEBAR_CARD_NESTED_INSET_CLASS,

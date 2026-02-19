@@ -10,7 +10,7 @@ import {
   AVAILABLE_CONNECTORS,
   Connector,
   ConnectorType,
-} from "../../model/connectors";
+} from "../../constants/connectors";
 import { useT } from "@/lib/i18n/client";
 
 interface ConnectorsDialogProps {

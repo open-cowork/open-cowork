@@ -1,5 +1,5 @@
 import * as React from "react";
-import { STREAMING_CHAR_DELAY } from "@/features/home/model/constants";
+import { STREAMING_CHAR_DELAY } from "@/features/home/constants/constants";
 import { createSessionAction } from "@/features/chat/actions/session-actions";
 import { fallbackLng, languages } from "@/lib/i18n/settings";
 import type {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CardNav } from "./card-nav/CardNav";
+import { CardNav } from "./card-nav/card-nav";
 import { ConnectorsDialog } from "./connectors/connectors-dialog";
-import type { ConnectorType } from "../model/connectors";
+import type { ConnectorType } from "../constants/connectors";
 
 /**
  * Connectors Bar Entry Component

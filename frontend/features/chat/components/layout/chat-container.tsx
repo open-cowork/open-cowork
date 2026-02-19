@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { useChatCreation } from "@/features/chat/hooks/use-chat-creation";
-import { AVAILABLE_MODELS } from "@/features/home/model/constants";
+import { AVAILABLE_MODELS } from "@/features/home/constants/constants";
 import type { ModelInfo } from "@/types";
 
 import { ChatHeader } from "../chat/chat-header";

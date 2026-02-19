@@ -1,3 +1,11 @@
+/**
+ * Cross-feature UI types shared across multiple feature modules.
+ *
+ * Types that are only used within a single feature should live in
+ * that feature's own `types/` directory instead.
+ */
+
+/** Static metadata describing an available LLM model. */
 export interface ModelInfo {
   id: string;
   name: string;
@@ -6,6 +14,7 @@ export interface ModelInfo {
   provider: "anthropic" | "openai" | "google";
 }
 
+/** Aggregated usage statistics for a session or account. */
 export interface UsageStats {
   credits: number;
   tokensUsed: number;
@@ -15,6 +24,7 @@ export interface UsageStats {
   monthUsage: number;
 }
 
+/** Generic file attachment metadata. */
 export interface Attachment {
   id: string;
   name: string;

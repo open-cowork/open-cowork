@@ -5,7 +5,7 @@ import * as React from "react";
 import { useT } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
 
-import { QUICK_ACTIONS } from "../model/constants";
+import { QUICK_ACTIONS } from "../constants/constants";
 
 export function QuickActions({ onPick }: { onPick: (prompt: string) => void }) {
   const { t } = useT("translation");

@@ -3,6 +3,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* =========================================================================
+   Theme Configuration
+   ========================================================================= */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -13,6 +17,9 @@
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+  /* Sidebar */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -21,15 +28,20 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+
+  /* Charts */
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+
+  /* Core palette */
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
@@ -46,6 +58,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Radii */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -53,14 +67,17 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --radius: 0.5rem;
+
+  /* Typography */
   --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
   --tracking-tight: calc(var(--tracking-normal) - 0.025em);
   --tracking-wide: calc(var(--tracking-normal) + 0.025em);
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   --tracking-normal: var(--tracking-normal);
+
+  /* Shadows */
   --shadow-2xl: var(--shadow-2xl);
   --shadow-xl: var(--shadow-xl);
   --shadow-lg: var(--shadow-lg);
@@ -69,6 +86,8 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-xs: var(--shadow-xs);
   --shadow-2xs: var(--shadow-2xs);
+
+  /* Misc tokens */
   --spacing: var(--spacing);
   --letter-spacing: var(--letter-spacing);
   --shadow-offset-y: var(--shadow-offset-y);
@@ -77,39 +96,56 @@
   --shadow-blur: var(--shadow-blur);
   --shadow-opacity: var(--shadow-opacity);
   --color-shadow-color: var(--shadow-color);
-  --color-destructive-foreground: var(--destructive-foreground);
 }
+
+/* =========================================================================
+   Light Mode Tokens
+   ========================================================================= */
 
 :root {
   --radius: 0.5rem;
+
+  /* Surface colors */
   --background: oklch(0.9818 0.0054 95.0986);
   --foreground: oklch(0.3438 0.0269 95.7226);
   --card: oklch(0.9818 0.0054 95.0986);
   --card-foreground: oklch(0.1908 0.002 106.5859);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2671 0.0196 98.939);
+
+  /* Brand */
   --primary: oklch(0.6171 0.1375 39.0427);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.9245 0.0138 92.9892);
   --secondary-foreground: oklch(0.4334 0.0177 98.6048);
+
+  /* Neutral */
   --muted: oklch(0.9341 0.0153 90.239);
   --muted-foreground: oklch(0.6059 0.0075 97.4233);
   --accent: oklch(0.9245 0.0138 92.9892);
   --accent-foreground: oklch(0.2671 0.0196 98.939);
+
+  /* Semantic */
   --destructive: oklch(0.6 0.12 25);
-  /* Morandi-like semantic colors for status indicators - slightly more saturated for visibility */
+  --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.65 0.1 152);
   --warning: oklch(0.7 0.1 86);
   --info: oklch(0.65 0.09 255);
   --renamed: oklch(0.65 0.1 310);
+
+  /* Borders & inputs */
   --border: oklch(0.8847 0.0069 97.3627);
   --input: oklch(0.7621 0.0156 98.3528);
   --ring: oklch(0.6171 0.1375 39.0427);
+
+  /* Charts */
   --chart-1: oklch(0.5583 0.1276 42.9956);
   --chart-2: oklch(0.6898 0.1581 290.4107);
   --chart-3: oklch(0.8816 0.0276 93.128);
   --chart-4: oklch(0.8822 0.0403 298.1792);
   --chart-5: oklch(0.5608 0.1348 42.0584);
+
+  /* Sidebar */
   --sidebar: oklch(0.9663 0.008 98.8792);
   --sidebar-foreground: oklch(0.359 0.0051 106.6524);
   --sidebar-primary: oklch(0.6171 0.1375 39.0427);
@@ -118,7 +154,8 @@
   --sidebar-accent-foreground: oklch(0.325 0 0);
   --sidebar-border: oklch(0.88 0 0);
   --sidebar-ring: oklch(0.7731 0 0);
-  --destructive-foreground: oklch(1 0 0);
+
+  /* Typography */
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
@@ -127,6 +164,8 @@
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
+
+  /* Shadow system */
   --shadow-color: oklch(0 0 0);
   --shadow-opacity: 0.1;
   --shadow-blur: 3px;
@@ -150,35 +189,52 @@
   --tracking-normal: 0em;
 }
 
+/* =========================================================================
+   Dark Mode Tokens
+   ========================================================================= */
+
 .dark {
+  /* Surface colors */
   --background: oklch(0.2679 0.0036 106.6427);
   --foreground: oklch(0.8074 0.0142 93.0137);
   --card: oklch(0.2679 0.0036 106.6427);
   --card-foreground: oklch(0.9818 0.0054 95.0986);
   --popover: oklch(0.3085 0.0035 106.6039);
   --popover-foreground: oklch(0.9211 0.004 106.4781);
+
+  /* Brand */
   --primary: oklch(0.6724 0.1308 38.7559);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.9818 0.0054 95.0986);
   --secondary-foreground: oklch(0.3085 0.0035 106.6039);
+
+  /* Neutral */
   --muted: oklch(0.2213 0.0038 106.707);
   --muted-foreground: oklch(0.7713 0.0169 99.0657);
   --accent: oklch(0.213 0.0078 95.4245);
   --accent-foreground: oklch(0.9663 0.008 98.8792);
+
+  /* Semantic */
   --destructive: oklch(0.7 0.12 25);
-  /* Morandi-like semantic colors for status indicators - slightly more saturated for visibility */
+  --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.75 0.1 152);
   --warning: oklch(0.78 0.1 86);
   --info: oklch(0.75 0.09 255);
   --renamed: oklch(0.75 0.1 310);
+
+  /* Borders & inputs */
   --border: oklch(0.3618 0.0101 106.8928);
   --input: oklch(0.4336 0.0113 100.2195);
   --ring: oklch(0.6724 0.1308 38.7559);
+
+  /* Charts */
   --chart-1: oklch(0.5583 0.1276 42.9956);
   --chart-2: oklch(0.6898 0.1581 290.4107);
   --chart-3: oklch(0.213 0.0078 95.4245);
   --chart-4: oklch(0.3074 0.0516 289.323);
   --chart-5: oklch(0.5608 0.1348 42.0584);
+
+  /* Sidebar */
   --sidebar: oklch(0.2357 0.0024 67.7077);
   --sidebar-foreground: oklch(0.8074 0.0142 93.0137);
   --sidebar-primary: oklch(0.325 0 0);
@@ -187,7 +243,8 @@
   --sidebar-accent-foreground: oklch(0.8074 0.0142 93.0137);
   --sidebar-border: oklch(0.32 0 0);
   --sidebar-ring: oklch(0.7731 0 0);
-  --destructive-foreground: oklch(1 0 0);
+
+  /* Shadow system (same structure, dark-adapted) */
   --radius: 0.5rem;
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -219,6 +276,10 @@
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
 }
 
+/* =========================================================================
+   Base Layer
+   ========================================================================= */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -237,28 +298,22 @@
   }
 }
 
+/* =========================================================================
+   Utility Layer
+   ========================================================================= */
+
 @layer utilities {
+  /* Hide scrollbar across browsers */
   .scrollbar-hide {
     -ms-overflow-style: none;
-    /* IE and Edge */
     scrollbar-width: none;
-    /* Firefox */
   }
-
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-    /* Chrome, Safari and Opera */
   }
 
-  /* Skeleton animations - 骨架屏动画 */
-
-  /*
-   * Modern gradient shimmer effect
-   * Uses background-position animation for a smooth, performant shimmer
-   * Reference: https://frontend-hero.com/how-to-create-skeleton-loader
-   */
+  /* Skeleton shimmer animation */
   .skeleton-shimmer {
-    /* Gradient background with stronger highlight contrast */
     background: linear-gradient(
       90deg,
       hsl(var(--muted) / 0.4) 0%,
@@ -280,29 +335,24 @@
     }
   }
 
-  /* Dark mode shimmer with lighter highlight */
   .dark .skeleton-shimmer {
     background: linear-gradient(
       90deg,
       hsl(var(--muted) / 0.3) 0%,
       hsl(var(--muted) / 0.3) 45%,
-      hsl(var(--muted-foreground) / 0.2) 50%,
+      hsl(0 0% 100% / 0.05) 50%,
       hsl(var(--muted) / 0.3) 55%,
       hsl(var(--muted) / 0.3) 100%
     );
   }
 
-  /*
-   * Accessibility: Reduced motion support
-   * For users who prefer reduced motion, use a subtle pulse instead
-   */
+  /* Reduced motion: use subtle pulse instead of shimmer */
   @media (prefers-reduced-motion: reduce) {
     .skeleton-shimmer {
       animation: skeleton-pulse 2s ease-in-out infinite;
     }
   }
 
-  /* Subtle pulse animation for reduced motion preference */
   @keyframes skeleton-pulse {
     0%,
     100% {
@@ -312,55 +362,13 @@
       opacity: 0.6;
     }
   }
-
-  /* Legacy shimmer animation (deprecated, kept for compatibility) */
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-
-  /* Pulse animation - simple breathing effect */
-  @keyframes skeleton-pulse-alt {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-  /* Wave animation - elegant wave sweep effect */
-  @keyframes skeleton-wave {
-    0% {
-      transform: translateX(-100%) skewX(-15deg);
-    }
-    100% {
-      transform: translateX(100%) skewX(-15deg);
-    }
-  }
-
-  /* Gradient pulse - combines gradient and pulse */
-  @keyframes skeleton-gradient-pulse {
-    0%,
-    100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-  }
 }
 
-/* 
- * React Doc Viewer Animation Isolation
- * 防止 tw-animate-css 的动画变量影响 react-doc-viewer 的渲染
- * 解决图片闪烁后变透明的问题
- */
+/* =========================================================================
+   Third-party Overrides
+   ========================================================================= */
+
+/* React Doc Viewer: prevent tw-animate-css from breaking image rendering */
 #react-doc-viewer,
 #react-doc-viewer * {
   animation: none !important;
@@ -378,14 +386,14 @@
   --tw-exit-blur: 0 !important;
 }
 
-/* 单独允许 loading spinner 的动画 */
+/* Allow spinner animation inside doc viewer */
 #react-doc-viewer .animate-spin,
 #loading-renderer .animate-spin,
 #loading-renderer svg {
   animation: spin 4s linear infinite !important;
 }
 
-/* Mobile Swiper Pagination Styles */
+/* Mobile Swiper pagination */
 .swiper-pagination {
   bottom: 0 !important;
   height: 48px !important;
@@ -427,6 +435,10 @@
   box-shadow: 0 2px 8px hsl(var(--primary) / 0.25) !important;
 }
 
+/* =========================================================================
+   Responsive Overrides
+   ========================================================================= */
+
 @media (max-width: 640px) {
   [data-slot="dialog-content"],
   [data-slot="alert-dialog-content"] {
@@ -435,7 +447,7 @@
   }
 }
 
-/* Prevent iOS Safari from zooming when focusing form controls. */
+/* Prevent iOS Safari zoom on form focus */
 @supports (-webkit-touch-callout: none) {
   @media (max-width: 768px) {
     input:not([type="range"]),

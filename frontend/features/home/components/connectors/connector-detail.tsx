@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import type { Connector } from "../../model/connectors";
+import type { Connector } from "../../constants/connectors";
 import { CapabilityFeature, DEFAULT_CAPABILITIES } from "./connector-card";
 import { useT } from "@/lib/i18n/client";
 
