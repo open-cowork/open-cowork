@@ -145,8 +145,13 @@ function DraggableTask({
       data-task-id={task.id}
     >
       {isSelectionMode ? (
-        <SidebarMenuButton
+        <div
+          role="button"
+          tabIndex={0}
+          data-slot="sidebar-menu-button"
+          data-sidebar="menu-button"
           className={cn(
+            "flex w-full min-w-0 items-center cursor-pointer outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring rounded-md",
             SIDEBAR_CARD_BASE_CLASS,
             isNested && SIDEBAR_CARD_NESTED_INSET_CLASS,
           )}
@@ -154,6 +159,12 @@ function DraggableTask({
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              (e.currentTarget as HTMLElement).click();
+            }
+          }}
         >
           <div className="flex items-center gap-3 min-w-0 w-full">
             <div className="shrink-0 flex items-center justify-center">
@@ -170,7 +181,7 @@ function DraggableTask({
               {task.title || t("chat.newChat")}
             </span>
           </div>
-        </SidebarMenuButton>
+        </div>
       ) : (
         <div className="relative group/task-card">
           <SidebarMenuButton
