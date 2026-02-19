@@ -71,18 +71,13 @@ export function HomeHeader({
                 title={t("header.switchModel")}
                 disabled={!isSelectorReady}
               >
-                <div className="flex min-w-0 flex-col items-start leading-tight">
-                  <span className="text-sm font-medium">
-                    {t("header.workspace")}
-                  </span>
-                  <span className="max-w-[220px] truncate text-xs text-muted-foreground">
-                    {effectiveModel || t("status.loading")}
-                  </span>
-                </div>
+                <span className="min-w-0 max-w-[220px] truncate text-sm font-medium">
+                  {effectiveModel || t("status.loading")}
+                </span>
                 <ChevronDown className="size-3.5 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-96">
+            <DropdownMenuContent align="start" className="w-60">
               {defaultModel ? (
                 <>
                   <DropdownMenuItem
