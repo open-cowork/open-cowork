@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
-  Bot,
   PanelLeftClose,
   PanelLeftOpen,
   PenSquare,
@@ -87,10 +86,14 @@ export function SidebarHeaderSection({
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
           <button
             onClick={toggleSidebar}
-            className="group/logo relative flex size-8 items-center justify-center overflow-hidden rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-md transition-all hover:shadow-lg active:scale-95 active:shadow-sm"
+            className="group/logo relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg shadow-md transition-all hover:shadow-lg active:scale-95 active:shadow-sm"
             type="button"
           >
-            <Bot className="size-5 transition-opacity group-data-[collapsible=icon]:group-hover/logo:opacity-0" />
+            <img
+              src="/logo.jpg"
+              alt="Poco"
+              className="size-full object-cover transition-opacity group-data-[collapsible=icon]:group-hover/logo:opacity-0"
+            />
             <PanelLeftOpen className="absolute hidden size-4 group-data-[collapsible=icon]:group-hover/logo:block" />
           </button>
           <span
