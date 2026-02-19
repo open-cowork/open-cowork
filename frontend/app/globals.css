@@ -11,13 +11,15 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    -apple-system, system-ui, "Segoe UI Variable Display", "Segoe UI",
+    Helvetica, Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-serif:
+    ui-serif, "Libre Baskerville", Georgia, Cambria, "Times New Roman", Times,
+    serif;
 
   /* Sidebar */
   --color-sidebar-ring: var(--sidebar-ring);
@@ -157,10 +159,12 @@
 
   /* Typography */
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    -apple-system, system-ui, "Segoe UI Variable Display", "Segoe UI",
+    Helvetica, Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif:
+    ui-serif, "Libre Baskerville", Georgia, Cambria, "Times New Roman", Times,
+    serif;
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
@@ -247,10 +251,12 @@
   /* Shadow system (same structure, dark-adapted) */
   --radius: 0.5rem;
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    -apple-system, system-ui, "Segoe UI Variable Display", "Segoe UI",
+    Helvetica, Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif:
+    ui-serif, "Libre Baskerville", Georgia, Cambria, "Times New Roman", Times,
+    serif;
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
@@ -293,8 +299,18 @@
   body {
     @apply bg-background text-foreground select-none;
     letter-spacing: var(--tracking-normal);
+    font-family: var(--font-sans);
     height: 100%;
     width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
   }
 }
 
