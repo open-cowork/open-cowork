@@ -56,6 +56,7 @@ export function McpSettingsDialog({
       <CapabilityDialogContent
         title={t("mcpSettings.configureServer")}
         size="md"
+        maxWidth="35rem"
         className="h-[56dvh] sm:h-[64dvh]"
         maxHeight="56dvh"
         desktopMaxHeight="64dvh"

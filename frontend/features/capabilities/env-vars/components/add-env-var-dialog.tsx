@@ -91,6 +91,7 @@ export function AddEnvVarDialog({
       <CapabilityDialogContent
         title={title}
         size="md"
+        maxWidth="35rem"
         footer={
           <DialogFooter className="grid grid-cols-2 gap-2">
             <Button

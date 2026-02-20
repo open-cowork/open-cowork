@@ -57,7 +57,6 @@ export function PluginsGrid({
           {t("library.pluginsManager.stats.enabled")}: {enabledCount}
         </span>
         <div className="flex flex-1 flex-nowrap items-center justify-end gap-2 overflow-x-auto">
-          {toolbarSlot}
           {installs.length > 0 && (
             <Button
               variant="ghost"
@@ -69,6 +68,7 @@ export function PluginsGrid({
               {t("pluginsGrid.turnOffAll")}
             </Button>
           )}
+          {toolbarSlot}
         </div>
       </div>
 

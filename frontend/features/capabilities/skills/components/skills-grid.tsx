@@ -71,7 +71,6 @@ export function SkillsGrid({
           {t("library.skillsManager.stats.enabled")}: {enabledCount}
         </span>
         <div className="flex flex-1 flex-nowrap items-center justify-end gap-2 overflow-x-auto">
-          {toolbarSlot}
           {installs.length > 0 && (
             <Button
               variant="ghost"
@@ -83,6 +82,7 @@ export function SkillsGrid({
               {t("skillsGrid.turnOffAll")}
             </Button>
           )}
+          {toolbarSlot}
         </div>
       </div>
 

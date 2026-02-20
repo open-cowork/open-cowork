@@ -72,12 +72,6 @@ export function SkillsPageClient() {
 
   const toolbarSlot = (
     <>
-      <HeaderSearchInput
-        value={searchQuery}
-        onChange={setSearchQuery}
-        placeholder={t("library.skillsPage.searchPlaceholder")}
-        className="w-full md:w-64"
-      />
       <Button
         variant="ghost"
         size="sm"
@@ -87,6 +81,12 @@ export function SkillsPageClient() {
         <Search className="size-4" />
         {t("library.skillsImport.title")}
       </Button>
+      <HeaderSearchInput
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder={t("library.skillsPage.searchPlaceholder")}
+        className="w-full md:w-64"
+      />
     </>
   );
 

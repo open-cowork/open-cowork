@@ -150,6 +150,7 @@ export function SubAgentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <CapabilityDialogContent
         title={title}
+        maxWidth="35rem"
         maxHeight="85dvh"
         desktopMaxHeight="90dvh"
         footer={

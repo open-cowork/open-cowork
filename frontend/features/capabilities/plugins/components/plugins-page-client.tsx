@@ -75,12 +75,6 @@ export function PluginsPageClient() {
 
   const toolbarSlot = (
     <>
-      <HeaderSearchInput
-        value={searchQuery}
-        onChange={setSearchQuery}
-        placeholder={t("library.pluginsPage.searchPlaceholder")}
-        className="w-full md:w-64"
-      />
       <Button
         variant="ghost"
         size="sm"
@@ -90,6 +84,12 @@ export function PluginsPageClient() {
         <Search className="size-4" />
         {t("library.pluginsImport.title")}
       </Button>
+      <HeaderSearchInput
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder={t("library.pluginsPage.searchPlaceholder")}
+        className="w-full md:w-64"
+      />
     </>
   );
 

@@ -276,6 +276,10 @@ export function SkillImportDialog({
     <Dialog open={open} onOpenChange={(open) => !open && handleClose()}>
       <CapabilityDialogContent
         title={t("library.skillsImport.title")}
+        maxWidth="35rem"
+        maxHeight="45dvh"
+        desktopMaxHeight="45dvh"
+        className="h-[45dvh]"
         bodyClassName="space-y-6 bg-background px-6 pt-4 pb-6"
         footer={
           <DialogFooter className="grid grid-cols-2 gap-2">
@@ -338,42 +342,48 @@ export function SkillImportDialog({
       >
         <div className="space-y-6">
           {!hasPreview && (
-            <Tabs value={tab} onValueChange={(v) => setTab(v as SourceTab)}>
-              <TabsList>
-                <TabsTrigger value="github">
+            <Tabs
+              value={tab}
+              onValueChange={(v) => setTab(v as SourceTab)}
+              className="gap-4"
+            >
+              <TabsList className="p-1 transition-colors duration-200">
+                <TabsTrigger
+                  value="github"
+                  className="data-[state=inactive]:scale-[0.98]"
+                >
                   {t("library.skillsImport.tabs.github")}
                 </TabsTrigger>
-                <TabsTrigger value="zip">
+                <TabsTrigger
+                  value="zip"
+                  className="data-[state=inactive]:scale-[0.98]"
+                >
                   {t("library.skillsImport.tabs.zip")}
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="zip" className="space-y-3">
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {t("library.skillsImport.fields.zip")}
-                </Label>
                 <Input
                   type="file"
                   accept=".zip"
                   onChange={(e) => setZipFile(e.target.files?.[0] || null)}
+                  className="text-muted-foreground/80 placeholder:text-muted-foreground/50 file:text-muted-foreground/80"
                 />
                 {zipFile && (
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-muted-foreground/60">
                     {zipFile.name} ({Math.round(zipFile.size / 1024)} KB)
                   </div>
                 )}
               </TabsContent>
 
               <TabsContent value="github" className="space-y-3">
-                <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {t("library.skillsImport.fields.githubUrl")}
-                </Label>
                 <Input
                   value={githubUrl}
                   onChange={(e) => setGithubUrl(e.target.value)}
                   placeholder={t("library.skillsImport.placeholders.githubUrl")}
+                  className="text-muted-foreground/80 placeholder:text-muted-foreground/50"
                 />
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-muted-foreground/60">
                   {t("library.skillsImport.hints.github")}
                 </div>
               </TabsContent>

@@ -75,12 +75,6 @@ export function McpPageClient() {
 
   const toolbarSlot = (
     <>
-      <HeaderSearchInput
-        value={searchQuery}
-        onChange={setSearchQuery}
-        placeholder={t("library.mcpLibrary.searchPlaceholder")}
-        className="w-full md:w-64"
-      />
       <Button
         variant="ghost"
         size="sm"
@@ -90,6 +84,12 @@ export function McpPageClient() {
         <Plus className="size-4" />
         {t("library.mcpLibrary.header.add")}
       </Button>
+      <HeaderSearchInput
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder={t("library.mcpLibrary.searchPlaceholder")}
+        className="w-full md:w-64"
+      />
     </>
   );
 

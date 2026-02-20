@@ -368,7 +368,7 @@ export const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
               type="button"
               onClick={onCancel}
               disabled={isCancelling}
-              className="flex-shrink-0 flex items-center justify-center size-8 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex-shrink-0 flex items-center justify-center size-8 rounded-md bg-muted text-foreground hover:bg-muted/80 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
               aria-label={t("chatInput.cancelTask")}
               title={t("chatInput.cancelTask")}
             >

@@ -69,7 +69,6 @@ export function McpGrid({
           {t("mcpGrid.enabledServers", { count: enabledCount })}
         </span>
         <div className="flex flex-1 flex-nowrap items-center justify-end gap-2 overflow-x-auto">
-          {toolbarSlot}
           {installs.length > 0 && (
             <Button
               variant="ghost"
@@ -84,6 +83,7 @@ export function McpGrid({
               </span>
             </Button>
           )}
+          {toolbarSlot}
         </div>
       </div>
 

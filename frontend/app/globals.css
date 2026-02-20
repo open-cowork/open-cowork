@@ -345,11 +345,11 @@
   .dark .skeleton-shimmer {
     background: linear-gradient(
       90deg,
-      hsl(var(--muted) / 0.3) 0%,
-      hsl(var(--muted) / 0.3) 45%,
-      hsl(0 0% 100% / 0.05) 50%,
-      hsl(var(--muted) / 0.3) 55%,
-      hsl(var(--muted) / 0.3) 100%
+      hsl(var(--accent) / 0.65) 0%,
+      hsl(var(--accent) / 0.65) 45%,
+      hsl(var(--foreground) / 0.24) 50%,
+      hsl(var(--accent) / 0.65) 55%,
+      hsl(var(--accent) / 0.65) 100%
     );
   }
 

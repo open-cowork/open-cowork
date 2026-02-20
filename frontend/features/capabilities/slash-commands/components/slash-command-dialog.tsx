@@ -131,6 +131,7 @@ export function SlashCommandDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <CapabilityDialogContent
         title={title}
+        maxWidth="35rem"
         footer={
           <DialogFooter className="grid grid-cols-2 gap-2">
             <Button
