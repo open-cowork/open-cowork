@@ -88,7 +88,7 @@ export function SidebarHeaderSection({ onNewTask }: SidebarHeaderSectionProps) {
           >
             <span className="flex items-center justify-center w-full h-full">
               <img
-                src="/logo.png"
+                src="/logo.svg"
                 alt="Poco"
                 className="size-full object-cover transition-opacity group-data-[collapsible=icon]:group-hover/logo:opacity-0"
                 style={{ border: "none", boxShadow: "none" }}
