@@ -41,7 +41,7 @@ export function SkillImportDialog({
   onImported,
 }: SkillImportDialogProps) {
   const { t } = useT("translation");
-  const [tab, setTab] = useState<SourceTab>("zip");
+  const [tab, setTab] = useState<SourceTab>("github");
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [githubUrl, setGithubUrl] = useState("");
 
@@ -69,7 +69,7 @@ export function SkillImportDialog({
   }, []);
 
   const reset = React.useCallback(() => {
-    setTab("zip");
+    setTab("github");
     setZipFile(null);
     setGithubUrl("");
     setArchiveKey(null);
@@ -317,11 +317,11 @@ export function SkillImportDialog({
           {!hasPreview && (
             <Tabs value={tab} onValueChange={(v) => setTab(v as SourceTab)}>
               <TabsList>
-                <TabsTrigger value="zip">
-                  {t("library.skillsImport.tabs.zip")}
-                </TabsTrigger>
                 <TabsTrigger value="github">
                   {t("library.skillsImport.tabs.github")}
+                </TabsTrigger>
+                <TabsTrigger value="zip">
+                  {t("library.skillsImport.tabs.zip")}
                 </TabsTrigger>
               </TabsList>
 
