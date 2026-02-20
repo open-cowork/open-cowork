@@ -14,6 +14,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -181,9 +182,16 @@ function DraggableTask({
             </div>
 
             {/* 文字 */}
-            <span className={SIDEBAR_CARD_TEXT_CLASS}>
-              {task.title || t("chat.newChat")}
-            </span>
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <span className={SIDEBAR_CARD_TEXT_CLASS}>
+                {task.title || t("chat.newChat")}
+              </span>
+              {task.hasPendingUserInput && (
+                <Badge className="shrink-0 bg-primary text-primary-foreground px-2 py-0 text-[10px] font-semibold animate-[ask-blink_1.2s_ease-in-out_infinite] group-data-[collapsible=icon]:hidden">
+                  {t("sidebar.askTag")}
+                </Badge>
+              )}
+            </div>
           </SidebarMenuButton>
 
           {/* 更多按钮 - 仅在非选择模式显示 */}

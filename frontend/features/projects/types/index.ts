@@ -23,4 +23,5 @@ export interface TaskHistoryItem {
   timestamp: string;
   status: "pending" | "running" | "completed" | "failed" | "canceled";
   projectId?: string;
+  hasPendingUserInput?: boolean;
 }

@@ -19,6 +19,7 @@ interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
   nextButtonProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
   backButtonText?: string;
   nextButtonText?: string;
+  completeButtonText?: string;
   disableStepIndicators?: boolean;
   renderStepIndicator?: (props: {
     step: number;
@@ -43,6 +44,7 @@ export function Stepper({
   nextButtonProps,
   backButtonText = "Back",
   nextButtonText = "Continue",
+  completeButtonText = "Complete",
   disableStepIndicators = false,
   renderStepIndicator,
   showFooter = true,
@@ -106,11 +108,22 @@ export function Stepper({
   const showNextButton = !isLastStep || showCompleteButton;
 
   return (
-    <div className={cn("w-full", className)} {...rest}>
-      <div className={cn("space-y-4", stepCircleContainerClassName)}>
+    <div
+      className={cn(
+        "flex min-h-full flex-1 flex-col items-center justify-center p-4",
+        className,
+      )}
+      {...rest}
+    >
+      <div
+        className={cn(
+          "mx-auto w-full max-w-md rounded-2xl border border-border/60 bg-card/80 shadow-md",
+          stepCircleContainerClassName,
+        )}
+      >
         <div
           className={cn(
-            "flex w-full items-center gap-3",
+            "flex w-full items-center gap-3 p-6",
             stepContainerClassName,
           )}
         >
@@ -151,16 +164,16 @@ export function Stepper({
           isCompleted={isCompleted}
           currentStep={currentStep}
           direction={direction}
-          className={cn("space-y-2", contentClassName)}
+          className={cn("space-y-2 px-6", contentClassName)}
         >
           {stepsArray[currentStep - 1]}
         </StepContentWrapper>
 
         {!isCompleted && showFooter && (
-          <div className={cn("", footerClassName)}>
+          <div className={cn("px-6 pb-6", footerClassName)}>
             <div
               className={cn(
-                "mt-4 flex",
+                "mt-6 flex",
                 currentStep !== 1 ? "justify-between" : "justify-end",
               )}
             >
@@ -183,13 +196,15 @@ export function Stepper({
                   type="button"
                   onClick={isLastStep ? handleComplete : handleNext}
                   className={cn(
-                    "flex items-center justify-center rounded-full bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90",
+                    "flex items-center justify-center rounded-full bg-primary px-3.5 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 active:bg-primary/80",
                     "disabled:pointer-events-none disabled:opacity-50",
                     nextButtonClassName,
                   )}
                   {...nextButtonRest}
                 >
-                  {isLastStep ? "Complete" : nextButtonText}
+                  {isLastStep
+                    ? completeButtonText || nextButtonText
+                    : nextButtonText}
                 </button>
               )}
             </div>
@@ -295,7 +310,7 @@ interface StepProps {
 }
 
 export function Step({ children, className }: StepProps) {
-  return <div className={cn("px-0", className)}>{children}</div>;
+  return <div className={cn("px-6", className)}>{children}</div>;
 }
 
 interface StepIndicatorProps {
@@ -338,14 +353,14 @@ function StepIndicator({
       <motion.div
         variants={indicatorVariants}
         transition={{ duration: 0.3 }}
-        className="flex h-8 w-8 items-center justify-center rounded-full font-semibold"
+        className="flex h-7 w-7 items-center justify-center rounded-full font-semibold"
       >
         {status === "complete" ? (
-          <CheckIcon className="h-4 w-4 text-primary-foreground" />
+          <CheckIcon className="h-3.5 w-3.5 text-primary-foreground" />
         ) : status === "active" ? (
-          <div className="h-3 w-3 rounded-full bg-primary-foreground" />
+          <div className="h-2.5 w-2.5 rounded-full bg-primary-foreground" />
         ) : (
-          <span className="text-sm text-muted-foreground">{step}</span>
+          <span className="text-xs text-muted-foreground">{step}</span>
         )}
       </motion.div>
     </motion.div>

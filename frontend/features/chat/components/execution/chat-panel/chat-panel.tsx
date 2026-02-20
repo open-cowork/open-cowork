@@ -25,6 +25,7 @@ import type {
   ExecutionSession,
   StatePatch,
   InputFile,
+  UserInputRequest,
 } from "@/features/chat/types";
 import { useT } from "@/lib/i18n/client";
 import { toast } from "sonner";
@@ -121,9 +122,52 @@ export function ChatPanel({
     requests: userInputRequests,
     isLoading: isSubmittingUserInput,
     submitAnswer: submitUserInputAnswer,
-  } = useUserInputRequests(session?.session_id, isSessionActive);
+  } = useUserInputRequests(session?.session_id, Boolean(session?.session_id));
 
   const activeUserInput = userInputRequests[0];
+  const [stickyUserInput, setStickyUserInput] =
+    React.useState<UserInputRequest | null>(null);
+  const stickyTimerRef = React.useRef<number | null>(null);
+  const activeUserInputExpiresAt = activeUserInput?.expires_at
+    ? new Date(activeUserInput.expires_at).getTime()
+    : 0;
+  const hasActiveUserInput =
+    Boolean(activeUserInput) &&
+    (activeUserInputExpiresAt ? activeUserInputExpiresAt > Date.now() : true);
+
+  React.useEffect(() => {
+    return () => {
+      if (stickyTimerRef.current) {
+        window.clearTimeout(stickyTimerRef.current);
+        stickyTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  React.useEffect(() => {
+    setStickyUserInput(null);
+    if (stickyTimerRef.current) {
+      window.clearTimeout(stickyTimerRef.current);
+      stickyTimerRef.current = null;
+    }
+  }, [session?.session_id]);
+
+  React.useEffect(() => {
+    if (!session?.session_id) return;
+    const hasCountdown =
+      Boolean(activeUserInput) &&
+      activeUserInput.tool_name !== "ExitPlanMode" &&
+      activeUserInputExpiresAt > Date.now();
+    touchTask(session.session_id, {
+      hasPendingUserInput: hasCountdown,
+      bumpToTop: false,
+    });
+  }, [
+    activeUserInput,
+    activeUserInputExpiresAt,
+    session?.session_id,
+    touchTask,
+  ]);
 
   const isSessionCancelable =
     session?.status === "running" || session?.status === "pending";
@@ -155,6 +199,25 @@ export function ChatPanel({
     updateSession,
   ]);
 
+  const handleSubmitUserInput = React.useCallback(
+    async (request: UserInputRequest, answers: Record<string, string>) => {
+      setStickyUserInput(request);
+      try {
+        await submitUserInputAnswer(request.id, answers);
+        if (stickyTimerRef.current) {
+          window.clearTimeout(stickyTimerRef.current);
+        }
+        stickyTimerRef.current = window.setTimeout(() => {
+          setStickyUserInput(null);
+          stickyTimerRef.current = null;
+        }, 1500);
+      } catch (error) {
+        throw error;
+      }
+    },
+    [submitUserInputAnswer],
+  );
+
   const handleRename = React.useCallback(
     async (newTitle: string) => {
       if (!session?.session_id) return;
@@ -183,7 +246,7 @@ export function ChatPanel({
   const handleSend = async (content: string, attachments?: InputFile[]) => {
     if (!session?.session_id) return;
 
-    if (activeUserInput) {
+    if (hasActiveUserInput) {
       return;
     }
 
@@ -281,6 +344,34 @@ export function ChatPanel({
         )}
       </div>
 
+      {activeUserInput || stickyUserInput ? (
+        <div className="px-4 pb-3">
+          {activeUserInput?.tool_name === "ExitPlanMode" ? (
+            <PlanApprovalCard
+              request={activeUserInput}
+              isSubmitting={isSubmittingUserInput}
+              onApprove={() =>
+                submitUserInputAnswer(activeUserInput.id, { approved: "true" })
+              }
+              onReject={() =>
+                submitUserInputAnswer(activeUserInput.id, { approved: "false" })
+              }
+            />
+          ) : activeUserInput || stickyUserInput ? (
+            <UserInputRequestCard
+              request={activeUserInput ?? stickyUserInput!}
+              isSubmitting={isSubmittingUserInput}
+              onSubmit={(answers) =>
+                handleSubmitUserInput(
+                  activeUserInput ?? stickyUserInput!,
+                  answers,
+                )
+              }
+            />
+          ) : null}
+        </div>
+      ) : null}
+
       {/* Status Bar - Skills and MCP */}
       {(hasConfigSnapshot || hasSkills || hasMcp || hasBrowser) && (
         <StatusBar
@@ -301,31 +392,6 @@ export function ChatPanel({
         />
       )}
 
-      {activeUserInput && (
-        <div className="px-4 pb-3">
-          {activeUserInput.tool_name === "ExitPlanMode" ? (
-            <PlanApprovalCard
-              request={activeUserInput}
-              isSubmitting={isSubmittingUserInput}
-              onApprove={() =>
-                submitUserInputAnswer(activeUserInput.id, { approved: "true" })
-              }
-              onReject={() =>
-                submitUserInputAnswer(activeUserInput.id, { approved: "false" })
-              }
-            />
-          ) : (
-            <UserInputRequestCard
-              request={activeUserInput}
-              isSubmitting={isSubmittingUserInput}
-              onSubmit={(answers) =>
-                submitUserInputAnswer(activeUserInput.id, answers)
-              }
-            />
-          )}
-        </div>
-      )}
-
       {/* Input */}
       <ChatInput
         ref={inputRef}
@@ -333,7 +399,7 @@ export function ChatPanel({
         onCancel={handleCancel}
         canCancel={isSessionCancelable || isCancelling}
         isCancelling={isCancelling}
-        disabled={!session?.session_id || !!activeUserInput || isCancelling}
+        disabled={!session?.session_id || hasActiveUserInput || isCancelling}
       />
 
       <RenameTaskDialog

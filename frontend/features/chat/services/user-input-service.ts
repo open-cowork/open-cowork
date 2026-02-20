@@ -5,7 +5,12 @@ import type {
 } from "@/features/chat/types";
 
 export const userInputService = {
-  listPending: async (sessionId: string): Promise<UserInputRequest[]> => {
+  listPending: async (
+    sessionId?: string | null,
+  ): Promise<UserInputRequest[]> => {
+    if (!sessionId) {
+      return apiClient.get<UserInputRequest[]>(API_ENDPOINTS.userInputRequests);
+    }
     const params = new URLSearchParams({ session_id: sessionId });
     return apiClient.get<UserInputRequest[]>(
       `${API_ENDPOINTS.userInputRequests}?${params.toString()}`,

@@ -1,5 +1,6 @@
 import { apiClient, API_ENDPOINTS } from "@/lib/api-client";
 import type { SessionResponse } from "@/features/chat/types";
+import { userInputService } from "@/features/chat/services/user-input-service";
 import type { ProjectItem, TaskHistoryItem } from "@/features/projects/types";
 
 interface ProjectApiResponse {
@@ -114,14 +115,37 @@ export const tasksService = {
     revalidate?: number;
   }): Promise<TaskHistoryItem[]> => {
     try {
-      const sessions = await apiClient.get<SessionResponse[]>(
-        API_ENDPOINTS.sessions,
-        {
+      const [sessionsResult, pendingResult] = await Promise.allSettled([
+        apiClient.get<SessionResponse[]>(API_ENDPOINTS.sessions, {
           next: { revalidate: options?.revalidate },
-        },
-      );
+        }),
+        userInputService.listPending(),
+      ]);
 
-      return sessions.map(mapSessionToTask);
+      if (sessionsResult.status === "rejected") {
+        throw sessionsResult.reason;
+      }
+
+      const pendingRequests =
+        pendingResult.status === "fulfilled" ? pendingResult.value : [];
+      const now = Date.now();
+      const pendingSessionIds = new Set<string>();
+
+      for (const request of pendingRequests) {
+        if (request.tool_name === "ExitPlanMode") continue;
+        if (!request.session_id) continue;
+        const expiresAt = request.expires_at
+          ? new Date(request.expires_at).getTime()
+          : 0;
+        if (expiresAt > now) {
+          pendingSessionIds.add(request.session_id);
+        }
+      }
+
+      return sessionsResult.value.map((session) => ({
+        ...mapSessionToTask(session),
+        hasPendingUserInput: pendingSessionIds.has(session.session_id),
+      }));
     } catch (error) {
       console.warn(
         "[Tasks] Failed to fetch task history, using empty list",

@@ -464,3 +464,15 @@
     }
   }
 }
+
+@keyframes ask-blink {
+  0%,
+  100% {
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+  }
+  50% {
+    opacity: 0.6;
+    filter: saturate(1.4) brightness(1.2);
+  }
+}
