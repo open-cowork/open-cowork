@@ -46,7 +46,7 @@ export function ComposerAttachments({
           key={i}
           file={file}
           onRemove={() => onRemoveAttachment(i)}
-          className="w-48 bg-background border-dashed"
+          className="w-48 bg-background"
         />
       ))}
     </div>
